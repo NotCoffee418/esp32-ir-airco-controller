@@ -12,10 +12,8 @@ yes- 2x ELIR204 - https://www.gotron.be/componenten/actief/opto/zender-ontvanger
 yes - 2x R1/4W/100 - https://www.gotron.be/ra100-weerstand-1-4w-100-ohm-koolstoffilmlaag.html 
 (only one on positive side)  
 
-## Breadboard
-yes - 1x https://www.gotron.be/set-mini-breadboards-55-insteekpunten-5-st.html  
-yes- 1x https://www.gotron.be/jumper-wire-oranje-male-male-lengte-10cm-10-stuks.html  
-yes - 1x https://www.gotron.be/jumper-wire-oranje-male-female-lengte-10cm-10-stuks.html  
+## Cables
+yes - 3x https://www.gotron.be/jumper-wire-paars-female-female-lengte-15cm-10-stuks.html
 
 
 ## Temperature Sensor
