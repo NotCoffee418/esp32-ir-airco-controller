@@ -5,7 +5,11 @@ yes- 2x NodeMCU ESP32 - https://www.gotron.be/esp32-joyit-met-usb-c.html
 Manual: https://joy-it.net/files/files/Produkte/SBC-NodeMCU-ESP32-C/SBC-NodeMCU-ESP32-C_Manual-EN_2025-01-17.pdf  
 
 ## IR receiver
-yes- 1x TSOP2238 - https://www.gotron.be/componenten/actief/opto/zender-ontvanger/ir-receiver-demodulator-38khz-1.html  
+yes- 1x TSOP2238 - https://www.gotron.be/componenten/actief/opto/zender-ontvanger/ir-receiver-demodulator-38khz-1.html 
+TSOP2238 (front view) → ESP32  
+Pin 1 (OUT) → GPIO 4
+Pin 2 (VS)  → 3.3V  
+Pin 3 (GND) → GND  
 
 ## IR LED
 yes- 2x ELIR204 - https://www.gotron.be/componenten/actief/opto/zender-ontvanger/ir-led-blauw-35-3mm-940nm-20ma-1-2v.html
