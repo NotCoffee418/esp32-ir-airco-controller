@@ -1,25 +1,32 @@
 #include <Arduino.h>
+#include <LittleFS.h>
 
-// put function declarations here:
-int myFunction(int, int);
+#include "web/server.h"
+#include "temp_wifi_setup.h" // temp
 
 void setup() {
-  // Initialize serial communication
-  Serial.begin(115200);
+	// Initialize serial communication
+	Serial.begin(115200);
+
+	// Try to initialize filesystem, but don't worry if it fails
+    if (!LittleFS.begin(true)) {
+        throw std::runtime_error("Error mounting LittleFS");
+    }
 
 
-  // Test function
-  int result = myFunction(2, 3);
-  Serial.println(result);
+	// Setup WiFi
+	tempWifiSetup();
+
+	// Setup web server (Requires an IP address)
+	webServerSetup();
+
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
-  Serial.println("Hello World");
-  delay(1000);
+	handleWebRequests();
 }
 
 // put function definitions here:
 int myFunction(int x, int y) {
-  return x + y;
+	return x + y;
 }
