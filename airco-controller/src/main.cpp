@@ -1,8 +1,10 @@
 #include <Arduino.h>
 #include <LittleFS.h>
+#include <WiFi.h>
 
 #include "web/server.h"
 #include "temp_wifi_setup.h" // temp
+#include "network/setup_identity.h"
 
 void setup() {
 	// Initialize serial communication
@@ -19,6 +21,12 @@ void setup() {
 
 	// Setup web server (Requires an IP address)
 	webServerSetup();
+
+	// Report device identity
+	Serial.println("Device identity:");
+	Serial.println("  MAC Address: " + String(WiFi.macAddress()));
+	Serial.println("  Hotspot name: " + getSetupHotspotName());
+	Serial.println("  Hotspot password: " + getSetupHotspotPassword());
 
 }
 

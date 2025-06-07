@@ -1,10 +1,7 @@
-#ifndef SERVER_H
-#define SERVER_H
+#pragma once
 
 class WebServer;
 
 void webServerSetup();
 void handleWebRequests();
 void serveFile(const char* path, const char* contentType);
-
-#endif

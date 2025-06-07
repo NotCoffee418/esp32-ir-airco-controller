@@ -1,6 +1,3 @@
-#ifndef TEMP_WIFI_SETUP_H
-#define TEMP_WIFI_SETUP_H
+#pragma once
 
 void tempWifiSetup();
-
-#endif
