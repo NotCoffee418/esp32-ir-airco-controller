@@ -1,1 +1,166 @@
-Status page
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Device Status</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/water.css@2/out/water.css">
+    <style>
+        .status-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; }
+        .card { border: 1px solid var(--border); padding: 1rem; border-radius: 0.5rem; }
+        .value { font-size: 1.5rem; font-weight: bold; }
+        .unit { color: var(--text-muted); font-size: 0.9rem; }
+        .progress { width: 100%; height: 0.5rem; background: var(--background-alt); border-radius: 0.25rem; margin-top: 0.5rem; }
+        .progress-fill { height: 100%; background: var(--links); border-radius: 0.25rem; transition: width 0.3s; }
+        .status { display: inline-block; width: 0.75rem; height: 0.75rem; border-radius: 50%; margin-right: 0.5rem; }
+        .connected { background: #28a745; }
+        .disconnected { background: #dc3545; }
+        .error { color: #dc3545; text-align: center; margin: 1rem 0; }
+        .header { text-align: center; }
+        .last-updated { font-size: 0.9rem; color: var(--text-muted); }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Device Status</h1>
+        <div class="last-updated" id="lastUpdated">Loading...</div>
+    </div>
+
+    <div id="errorMessage" class="error" style="display: none;">
+        Failed to connect to device. Retrying...
+    </div>
+
+    <div class="status-grid">
+        <div class="card">
+            <h3>RAM Usage</h3>
+            <div class="value" id="ramValue">--</div>
+        </div>
+
+        <div class="card">
+            <h3>Flash Usage</h3>
+            <div class="value" id="flashValue">--</div>
+        </div>
+
+        <div class="card">
+            <h3>Uptime</h3>
+            <div class="value" id="uptimeValue">--</div>
+        </div>
+
+        <div class="card">
+            <h3>WiFi Status</h3>
+            <div class="value">
+                <span class="status" id="wifiIndicator"></span>
+                <span id="wifiStatus">--</span>
+            </div>
+            <div class="unit" id="rssiValue">Signal: -- dBm</div>
+        </div>
+
+        <div class="card">
+            <h3>Device Temperature</h3>
+            <div class="value" id="tempValue">--</div>
+            <div class="unit">°C</div>
+        </div>
+    </div>
+
+    <script>
+        let refreshInterval;
+        let consecutiveErrors = 0;
+
+        function formatUptime(seconds) {
+            const days = Math.floor(seconds / 86400);
+            const hours = Math.floor((seconds % 86400) / 3600);
+            const minutes = Math.floor((seconds % 3600) / 60);
+            const secs = seconds % 60;
+            
+            if (days > 0) return days + 'd ' + hours + 'h ' + minutes + 'm';
+            if (hours > 0) return hours + 'h ' + minutes + 'm ' + secs + 's';
+            if (minutes > 0) return minutes + 'm ' + secs + 's';
+            return secs + 's';
+        }
+
+        function updateProgressBar(elementId, percentage) {
+            const bar = document.getElementById(elementId);
+            if (bar) {
+                bar.style.width = Math.min(100, Math.max(0, percentage)) + '%';
+            }
+        }
+
+        function showError(show) {
+            const errorDiv = document.getElementById('errorMessage');
+            if (errorDiv) {
+                errorDiv.style.display = show ? 'block' : 'none';
+            }
+        }
+
+        function updateData() {
+            fetch('/api/diagnostic-data')
+                .then(function(response) {
+                    if (!response.ok) {
+                        throw new Error('HTTP ' + response.status);
+                    }
+                    return response.json();
+                })
+                .then(function(data) {
+                    consecutiveErrors = 0;
+                    showError(false);
+                    
+                    // RAM and Flash are already formatted strings
+                    document.getElementById('ramValue').textContent = data.ramUsage || '--';
+                    // No progress bars needed since we don't have raw percentages
+                    
+                    document.getElementById('flashValue').textContent = data.flashUsage || '--';
+                    
+                    // Uptime is already formatted as string
+                    document.getElementById('uptimeValue').textContent = data.uptime || '--';
+                    
+                    var indicator = document.getElementById('wifiIndicator');
+                    var status = document.getElementById('wifiStatus');
+                    var rssi = document.getElementById('rssiValue');
+                    
+                    if (data.wifiConnected) {
+                        indicator.className = 'status connected';
+                        status.textContent = 'Connected';
+                        rssi.textContent = 'Signal: ' + (data.rssi || '--') + ' dBm';
+                    } else {
+                        indicator.className = 'status disconnected';
+                        status.textContent = 'Disconnected';
+                        rssi.textContent = 'Signal: -- dBm';
+                    }
+                    
+                    var deviceTemp = parseFloat(data.deviceTemperature) || 0;
+                    document.getElementById('tempValue').textContent = deviceTemp.toFixed(1);
+                    document.getElementById('lastUpdated').textContent = 'Last updated: ' + new Date().toLocaleTimeString();
+                })
+                .catch(function(error) {
+                    console.error('Fetch error:', error);
+                    consecutiveErrors++;
+                    if (consecutiveErrors >= 3) {
+                        showError(true);
+                    }
+                    document.getElementById('lastUpdated').textContent = 'Error at ' + new Date().toLocaleTimeString();
+                });
+        }
+
+        function startRefresh() {
+            updateData();
+            refreshInterval = setInterval(updateData, 5000);
+        }
+
+        function stopRefresh() {
+            if (refreshInterval) {
+                clearInterval(refreshInterval);
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', startRefresh);
+        document.addEventListener('visibilitychange', function() {
+            if (document.hidden) {
+                stopRefresh();
+            } else {
+                startRefresh();
+            }
+        });
+        window.addEventListener('beforeunload', stopRefresh);
+    </script>
+</body>
+</html>
