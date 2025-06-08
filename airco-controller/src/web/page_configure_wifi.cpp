@@ -24,12 +24,15 @@ void registerConfigureWifiPageHandlers(WebServer& server) {
         _saveWifiConfigJSON(json);
 
         // Start WiFi connection and restart device if valid
-        if (startWifiConnection()) {
+        if (startWifiConnection(false)) {
             server.send(200, "application/json", "{}");
             setBootInHotspotMode(false);
             ESP.restart();
         } else {
             server.send(500, "application/json", "{\"error\":\"Failed to start WiFi connection\"}");
+
+            // Restart in hotspot mode next time unless this is corrected.
+            setBootInHotspotMode(true);
         }
     });
 }
@@ -86,5 +89,6 @@ void _saveWifiConfigJSON(String json) {
     config.networkDnsServer.fromString(doc["networkDnsServer"].as<String>());
 
     // Save config
+    Serial.println("config: Updating config triggered by user.");
     saveConfig(config);    
 }

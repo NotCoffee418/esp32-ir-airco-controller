@@ -20,6 +20,7 @@ static unsigned long _lastWifiHealthCheck = 0;
 void setup() {
 	// Initialize serial communication
 	Serial.begin(115200);
+	Serial.println("Booting Airco Control Unit...");
 
 	// Try to initialize filesystem, but don't worry if it fails
     if (!LittleFS.begin(true)) {
@@ -37,8 +38,9 @@ void setup() {
 	_inHotspotMode = config.bootInHotspotMode;
 	if (_inHotspotMode) {
 		startHotspot();
-	} else {
-		Serial.println("WiFi: Not in hotspot mode. Not implemented.");
+	} else if (!startWifiConnection(true)) {
+		Serial.println("WiFi: Failed to connect. Rebooting in hotspot mode.");
+		setBootInHotspotMode(true);
 		delay(1000);
 		ESP.restart();
 		return;

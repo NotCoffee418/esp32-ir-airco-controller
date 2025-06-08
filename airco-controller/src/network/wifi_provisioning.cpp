@@ -17,17 +17,17 @@ DNSServer _dnsServer;
 
 // Private Constants
 // ms to wait for connection recovery
-const unsigned long _PATIENCE_MS = 35000;
+const unsigned long _PATIENCE_MS = 35000UL;
 // ms to wait between connection recovery checks
-const uint16_t _CONNECTION_RECOVERY_CHECK_INTERVAL_MS = 1000;
+const uint16_t _CONNECTION_RECOVERY_CHECK_INTERVAL_MS = 1000U;
 // Number of idle checks to perform (tied to _IDLE_CHECK_INTERVAL_MS)
-const uint8_t _IDLE_CHECK_LIMIT = 50;
+const uint8_t _IDLE_CHECK_LIMIT = 50U;
 // Interval between idle checks (tied to _IDLE_CHECK_LIMIT)
-const uint16_t _IDLE_CHECK_INTERVAL_MS = 100;
+const uint16_t _IDLE_CHECK_INTERVAL_MS = 100U;
 // Number of pings to perform
-const uint8_t _PING_RETRIES = 5;
+const uint8_t _PING_RETRIES = 5U;
 // ms to wait between ping attempts (short, within _PATIENCE_MS)
-const uint16_t _PING_INTERVAL_MS = 500;
+const uint16_t _PING_INTERVAL_MS = 500U;
 
 
 // Full check for wifi state and handle device restarts where needed.
@@ -155,7 +155,28 @@ void startHotspot() {
     }
 }
 
-bool startWifiConnection() {
+/// @brief Start WiFi connection based on config
+/// @param setMode change mode (should only be done on boot)
+/// @return 
+bool startWifiConnection(bool setMode) {
+    Config config;
+    getConfig(config);
+
+    if (setMode) {
+        WiFi.mode(WIFI_STA);
+    }
+
+    if (!config.useDhcp) {
+        WiFi.config(config.networkDeviceIp, config.networkGateway, config.networkSubnetMask, config.networkDnsServer);
+    }
+
+    WiFi.begin(config.ssid.c_str(), config.password.c_str());
+
+    if (WiFi.waitForConnectResult(_PATIENCE_MS) != WL_CONNECTED) {
+        Serial.println("WiFi: Failed to connect");
+        return false;
+    }
+
     return true;
 }
 

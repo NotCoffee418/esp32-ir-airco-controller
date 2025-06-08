@@ -219,17 +219,26 @@
                         'Configuration saved successfully! Hotspot will now close and normal connection will resume.\n' +
                         'If the credentials were invalid, hotspot will restart within 1 minute.');
                 } else {
-                    showStatus('Failed to save configuration', true);
+                    const errorData = await response.json();
+                    const errorMessage = errorData.error || 'Failed to save configuration';
+                    showStatus(errorMessage, true);
                 }
             } catch (error) {
                 showStatus('Error saving configuration', true);
                 console.error('Error saving config:', error);
             }
+
+            const submitBtn = document.querySelector('#wifiForm button[type="submit"]');
+            submitBtn.disabled = false;
+            submitBtn.textContent = 'Save Configuration';
         }
 
         // Form submission
         document.getElementById('wifiForm').addEventListener('submit', function(e) {
             e.preventDefault();
+            const submitBtn = this.querySelector('button[type="submit"]');
+            submitBtn.disabled = true;
+            submitBtn.textContent = 'Saving...';
             
             if (!validateForm()) {
                 clearStatus();

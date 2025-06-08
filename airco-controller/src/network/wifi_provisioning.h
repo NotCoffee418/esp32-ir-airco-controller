@@ -11,5 +11,5 @@ enum WifiState {
 
 WifiState determineWifiState();
 void startHotspot();
-bool startWifiConnection();
+bool startWifiConnection(bool setMode);
 void handleHotspotDnsRequests();
