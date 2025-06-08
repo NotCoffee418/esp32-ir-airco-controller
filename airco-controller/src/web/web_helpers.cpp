@@ -3,6 +3,7 @@
 
 #include "web_helpers.h"
 
+static const uint16_t SERVE_FILE_BUFFER_SIZE = 2048;
 
 // Serve a file from LittleFS
 // This is a helper function to serve files from LittleFS
@@ -25,10 +26,10 @@ void serveFile(WebServer& server, const char* path, const char* contentType) {
 	server.send(200, contentType, "");
   
 	// Send file content
-    char buffer[1024];  // Only 1KB in RAM at a time
+    char buffer[SERVE_FILE_BUFFER_SIZE];  // Only X bytes in RAM at a time
 	uint16_t bytesRead = 0;
     while(file.available()) {
-		bytesRead = file.readBytes(buffer, 1024);
+		bytesRead = file.readBytes(buffer, SERVE_FILE_BUFFER_SIZE);
 		server.sendContent(buffer, bytesRead);
     }
     file.close();
