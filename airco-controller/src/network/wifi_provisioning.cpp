@@ -33,13 +33,13 @@ const uint16_t _PING_INTERVAL_MS = 500;
 // Full check for wifi state and handle device restarts where needed.
 // Should be run after startup WiFi actions and periodically.
 WifiState determineWifiState() {
-    bool isInHotspotMode = getBootInHotspotMode();
+    Config config;
+    getConfig(config);
 
     // If we don't have credentials, we can't connect
-    WifiCredentials wifiCredentials = getWifiCredentials();
-    if (!wifiCredentials.hasCredentials) {
+    if (config.ssid.length() == 0) {
         // Ensure we're in hotspot mode (excessive but low effort)
-        if (!isInHotspotMode) {
+        if (!config.bootInHotspotMode) {
             setBootInHotspotMode(true);
             Serial.println("WiFi: Questionable state. Rebooting in hotspot mode.");
             ESP.restart();
@@ -74,7 +74,7 @@ WifiState determineWifiState() {
         // Causes: 
         // - Router was temporarily unreachable, so we started hotspot.
         // - We just set or changed credentials and managed to connect, so we switch to STA only mode.
-        if (isInHotspotMode) {            
+        if (config.bootInHotspotMode) {            
             setBootInHotspotMode(false);
             Serial.println("WiFi: Connected. Rebooting to disable hotspot mode.");
             ESP.restart();
@@ -90,7 +90,7 @@ WifiState determineWifiState() {
 
     // We're in hotspot mode and not connected to a network.
     // We don't need to restart, but give user the opportunity to change credentials.
-    if (isInHotspotMode) {
+    if (config.bootInHotspotMode) {
         return WIFI_HOTSPOT_MODE;
     }
 

@@ -1,0 +1,10 @@
+{
+    "bootInHotspotMode": true,
+    "ssid": "",
+    "password": "",
+    "useDhcp": true,
+    "networkDeviceIp": "192.168.50.1",
+    "networkGateway": "192.168.50.1",
+    "networkSubnetMask": "255.255.255.0",
+    "networkDnsServer": "1.1.1.1"
+  }

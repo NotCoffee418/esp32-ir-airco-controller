@@ -8,6 +8,7 @@
 #include "network/wifi_provisioning.h"
 #include "storage/config.h"
 #include "diagnostic.h"
+#include "storage/config.h"
 
 // private constants
 const unsigned long _WIFI_HEALTH_CHECK_INTERVAL_MS = 60000;
@@ -25,8 +26,12 @@ void setup() {
         throw std::runtime_error("Error mounting LittleFS");
     }
 
+	// Load config
+	Config config;
+	getConfig(config);
+
 	// Setup WiFi
-	_inHotspotMode = getBootInHotspotMode();
+	_inHotspotMode = config.bootInHotspotMode;
 	if (_inHotspotMode) {
 		startHotspot();
 	} else {
