@@ -9,6 +9,8 @@ struct DiagnosticData {
     bool wifiConnected;
     int rssi;
     float deviceTemperature;
+    String ssid;
+    String deviceIp;
 };
 
 void printDiagnosticData();

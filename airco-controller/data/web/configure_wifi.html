@@ -1,9 +1,256 @@
-<html>
-    <head>
-        <link rel="stylesheet" href="/css/water.min.css">
-    </head>
-    <body>
-        <h1>Configure Wifi</h1>
-        changed 4
-    </body>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WiFi Configuration</title>
+    <link rel="stylesheet" href="/css/water.min.css">
+    <style>
+        .network-settings {
+            padding: 1rem;
+            border: 1px solid var(--border);
+            border-radius: 4px;
+            margin-top: 1rem;
+            margin-bottom: 1rem;
+            background-color: var(--background-alt);
+        }
+        .hidden {
+            display: none;
+        }
+        .error {
+            color: #721c24;
+            font-size: 0.9rem;
+            margin-top: 0.25rem;
+        }
+        .form-group {
+            margin-bottom: 1rem;
+        }
+        #status {
+            padding: 1rem;
+            border-radius: 4px;
+            margin-bottom: 1rem;
+        }
+        .status-success {
+            background-color: #d4edda;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+        .status-error {
+            background-color: #f8d7da;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+    </style>
+</head>
+<body>
+    <main>
+        <h1>WiFi Configuration</h1>
+        
+        <div id="status" class="hidden"></div>
+        
+        <form id="wifiForm">
+            <div class="form-group">
+                <label for="ssid">WiFi SSID:</label>
+                <input type="text" id="ssid" name="ssid" required>
+                <div id="ssidError" class="error"></div>
+            </div>
+            
+            <div class="form-group">
+                <label for="password">WiFi Password:</label>
+                <input type="password" id="password" name="password">
+                <div id="passwordError" class="error"></div>
+            </div>
+            
+            <div class="form-group">
+                <label>
+                    <input type="checkbox" id="useDhcp" name="useDhcp" checked>
+                    Use DHCP (automatic IP assignment)
+                </label>
+            </div>
+            
+            <div id="staticNetworkSettings" class="network-settings hidden">
+                <h3>Static Network Settings</h3>
+                
+                <div class="form-group">
+                    <label for="networkDeviceIp">Device IP Address:</label>
+                    <input type="text" id="networkDeviceIp" name="networkDeviceIp" placeholder="192.168.1.100">
+                    <div id="deviceIpError" class="error"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="networkGateway">Gateway:</label>
+                    <input type="text" id="networkGateway" name="networkGateway" placeholder="192.168.1.1">
+                    <div id="gatewayError" class="error"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="networkSubnetMask">Subnet Mask:</label>
+                    <input type="text" id="networkSubnetMask" name="networkSubnetMask" placeholder="255.255.255.0">
+                    <div id="subnetError" class="error"></div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="networkDnsServer">DNS Server:</label>
+                    <input type="text" id="networkDnsServer" name="networkDnsServer" placeholder="8.8.8.8">
+                    <div id="dnsError" class="error"></div>
+                </div>
+            </div>
+            
+            <button type="submit">Save Configuration</button>
+        </form>
+    </main>
+
+    <script>
+        // Toggle static network settings visibility
+        const useDhcpCheckbox = document.getElementById('useDhcp');
+        const staticNetworkSettings = document.getElementById('staticNetworkSettings');
+        
+        useDhcpCheckbox.addEventListener('change', function() {
+            if (this.checked) {
+                staticNetworkSettings.classList.add('hidden');
+            } else {
+                staticNetworkSettings.classList.remove('hidden');
+            }
+        });
+
+        // IP address validation
+        function isValidIP(ip) {
+            const ipRegex = /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+            return ipRegex.test(ip);
+        }
+
+        // Clear error messages
+        function clearErrors() {
+            document.querySelectorAll('.error').forEach(el => el.textContent = '');
+        }
+
+        // Show status message
+        function showStatus(message, isError = false) {
+            const status = document.getElementById('status');
+            status.textContent = message;
+            status.className = isError ? 'status-error' : 'status-success';
+            status.classList.remove('hidden');
+        }
+
+        function clearStatus() {
+            const status = document.getElementById('status');
+            status.classList.add('hidden');
+        }
+
+        // Validate form
+        function validateForm() {
+            clearErrors();
+            let isValid = true;
+
+            const ssid = document.getElementById('ssid').value.trim();
+            if (!ssid) {
+                document.getElementById('ssidError').textContent = 'SSID is required';
+                isValid = false;
+            }
+
+            // Only validate static network settings if DHCP is disabled
+            if (!useDhcpCheckbox.checked) {
+                const deviceIp = document.getElementById('networkDeviceIp').value.trim();
+                const gateway = document.getElementById('networkGateway').value.trim();
+                const subnet = document.getElementById('networkSubnetMask').value.trim();
+                const dns = document.getElementById('networkDnsServer').value.trim();
+
+                if (!deviceIp || !isValidIP(deviceIp)) {
+                    document.getElementById('deviceIpError').textContent = 'Invalid IP address format';
+                    isValid = false;
+                }
+
+                if (!gateway || !isValidIP(gateway)) {
+                    document.getElementById('gatewayError').textContent = 'Invalid IP address format';
+                    isValid = false;
+                }
+
+                if (!subnet || !isValidIP(subnet)) {
+                    document.getElementById('subnetError').textContent = 'Invalid IP address format';
+                    isValid = false;
+                }
+
+                if (!dns || !isValidIP(dns)) {
+                    document.getElementById('dnsError').textContent = 'Invalid IP address format';
+                    isValid = false;
+                }
+            }
+
+            return isValid;
+        }
+
+        // Load current configuration
+        async function loadConfig() {
+            try {
+                const response = await fetch('/api/get-wifi-config');
+                const config = await response.json();
+                
+                document.getElementById('ssid').value = config.ssid || '';
+                document.getElementById('password').value = config.password || '';
+                document.getElementById('useDhcp').checked = config.useDhcp !== false;
+                document.getElementById('networkDeviceIp').value = config.networkDeviceIp === '0.0.0.0' ? '' : config.networkDeviceIp;
+                document.getElementById('networkGateway').value = config.networkGateway === '0.0.0.0' ? '' : config.networkGateway;
+                document.getElementById('networkSubnetMask').value = config.networkSubnetMask === '0.0.0.0' ? '' : config.networkSubnetMask;
+                document.getElementById('networkDnsServer').value = config.networkDnsServer === '0.0.0.0' ? '' : config.networkDnsServer;
+                
+                // Trigger DHCP checkbox change to show/hide static settings
+                useDhcpCheckbox.dispatchEvent(new Event('change'));
+            } catch (error) {
+                showStatus('Failed to load current configuration', true);
+                console.error('Error loading config:', error);
+            }
+        }
+
+        // Save configuration
+        async function saveConfig(formData) {
+            try {
+                showStatus('Testing connection...');
+                
+                const response = await fetch('/api/set-wifi-config', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(formData)
+                });
+
+                if (response.ok) {
+                    showStatus(
+                        'Configuration saved successfully! Hotspot will now close and normal connection will resume.\n' +
+                        'If the credentials were invalid, hotspot will restart within 1 minute.');
+                } else {
+                    showStatus('Failed to save configuration', true);
+                }
+            } catch (error) {
+                showStatus('Error saving configuration', true);
+                console.error('Error saving config:', error);
+            }
+        }
+
+        // Form submission
+        document.getElementById('wifiForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            if (!validateForm()) {
+                clearStatus();
+                return;
+            }
+
+            const formData = {
+                ssid: document.getElementById('ssid').value.trim(),
+                password: document.getElementById('password').value,
+                useDhcp: document.getElementById('useDhcp').checked,
+                networkDeviceIp: document.getElementById('useDhcp').checked ? '0.0.0.0' : (document.getElementById('networkDeviceIp').value.trim() || '0.0.0.0'),
+                networkGateway: document.getElementById('useDhcp').checked ? '0.0.0.0' : (document.getElementById('networkGateway').value.trim() || '0.0.0.0'),
+                networkSubnetMask: document.getElementById('useDhcp').checked ? '0.0.0.0' : (document.getElementById('networkSubnetMask').value.trim() || '0.0.0.0'),
+                networkDnsServer: document.getElementById('useDhcp').checked ? '0.0.0.0' : (document.getElementById('networkDnsServer').value.trim() || '0.0.0.0')
+            };
+
+            saveConfig(formData);
+        });
+
+        // Load configuration on page load
+        document.addEventListener('DOMContentLoaded', loadConfig);
+    </script>
+</body>
 </html>

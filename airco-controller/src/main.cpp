@@ -23,7 +23,10 @@ void setup() {
 
 	// Try to initialize filesystem, but don't worry if it fails
     if (!LittleFS.begin(true)) {
-        throw std::runtime_error("Error mounting LittleFS");
+		Serial.println("Error mounting LittleFS");
+		delay(1000);
+		ESP.restart();
+		return;
     }
 
 	// Load config
@@ -35,7 +38,10 @@ void setup() {
 	if (_inHotspotMode) {
 		startHotspot();
 	} else {
-		throw std::runtime_error("WiFi: Not in hotspot mode. Not implemented.");
+		Serial.println("WiFi: Not in hotspot mode. Not implemented.");
+		delay(1000);
+		ESP.restart();
+		return;
 	}
 
 	// Setup web server (Requires an IP address)

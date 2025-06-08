@@ -26,7 +26,10 @@ void saveConfig(const Config& config) {
     // Save to LittleFS
     File file = LittleFS.open("/config.json", "w");
     if (!file) {
-        throw std::runtime_error("Failed to open config file for writing");
+        Serial.println("config: Failed to open config file for writing");
+        delay(1000);
+        ESP.restart();
+        return;
     }
     file.print(json);
     file.close();
@@ -37,6 +40,8 @@ void getConfig(Config& config) {
     File file = LittleFS.open("/config.json", "r");
     if (!file) {
         Serial.println("config: Failed to load config file");
+        _setFreshConfig();
+        return;
     }
 
     // Read file content
@@ -80,6 +85,8 @@ void _setFreshConfig() {
     Config config = Config();
     config.bootInHotspotMode = true;
     config.useDhcp = true;
+    config.networkSubnetMask = IPAddress(255, 255, 255, 0);
+    config.networkDnsServer = IPAddress(1, 1, 1, 1);
 
     saveConfig(config);
 

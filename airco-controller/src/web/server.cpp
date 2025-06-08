@@ -5,6 +5,7 @@
 #include "server.h"
 #include "page_status.h"
 #include "web_helpers.h"
+#include "page_configure_wifi.h"
 
 // Private functions
 void _handleCaptivePortalDetection();
@@ -18,7 +19,7 @@ void webServerSetup(bool includeHotspotCapture) {
 	String indexRedirect = "/status";
 	if (includeHotspotCapture) {
 		_setupHotspotCaptureEndpoints();
-		indexRedirect = "/configure_wifi";
+		indexRedirect = "/configure";
 	}
 
 	server.on("/", [indexRedirect]() {
@@ -26,21 +27,14 @@ void webServerSetup(bool includeHotspotCapture) {
 		server.send(302, "text/plain", "");
 	});
 
-	server.on("/status", []() {
-		serveFile(server, "/web/status.html", "text/html");
-	});
-
-	server.on("/configure_wifi", []() {
-		serveFile(server, "/web/configure_wifi.html", "text/html");
-	});
-
 	// Resources
 	server.on("/css/water.min.css", []() {
 		serveFile(server, "/web/css/water.min.css", "text/css");
 	});
 
-	// Register status page handlers
+	// Register handler groups
 	registerStatusPageHandlers(server);
+	registerConfigureWifiPageHandlers(server);
 
 	server.onNotFound([]() { 
 		String uri = server.uri();
@@ -79,7 +73,7 @@ void _setupHotspotCaptureEndpoints() {
 
 
 void _handleCaptivePortalDetection() {
-	String redirectUrl = "http://" + WiFi.softAPIP().toString() + "/configure_wifi";    
+	String redirectUrl = "http://" + WiFi.softAPIP().toString() + "/configure";    
     server.sendHeader("Location", redirectUrl, true);
     server.sendHeader("Cache-Control", "no-cache, no-store, must-revalidate");
     server.sendHeader("Pragma", "no-cache");

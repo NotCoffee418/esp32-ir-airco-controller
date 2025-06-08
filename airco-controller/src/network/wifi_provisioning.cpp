@@ -64,7 +64,11 @@ WifiState determineWifiState() {
 
         // Shouldn't happen, but if it does, crash and reboot
         if (i == (_IDLE_CHECK_LIMIT - 1)) {
-            throw std::runtime_error("AP: Failed to determine WiFi state. Stuck on idle status.");
+            Serial.println("WiFi: Failed to determine WiFi state. Stuck on idle status.");
+            setBootInHotspotMode(true);
+            delay(1000);
+            ESP.restart();
+            return WIFI_UNDEFINED;
         }    
     }
 
@@ -133,7 +137,10 @@ void startHotspot() {
     String apName = getSetupHotspotName();
     bool apStarted = WiFi.softAP(apName.c_str());
     if (!apStarted) {
-        throw std::runtime_error("AP: Failed to start access point");
+        Serial.println("AP: Failed to start access point");
+        delay(1000);
+        ESP.restart();
+        return;
     }
     Serial.println("AP started: " + String(apName));
     Serial.println("AP IP: " + apIp.toString());
@@ -141,8 +148,15 @@ void startHotspot() {
     // Set up the DNS server to capture all requests to the access point
     bool dnsStarted = _dnsServer.start(53, "*", apIp);
     if (!dnsStarted) {
-        throw std::runtime_error("AP: Failed to start DNS server");
+        Serial.println("AP: Failed to start DNS server");
+        delay(1000);
+        ESP.restart();
+        return;
     }
+}
+
+bool startWifiConnection() {
+    return true;
 }
 
 // Should be called in loop() when in hotspot mode.

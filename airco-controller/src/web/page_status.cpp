@@ -10,6 +10,7 @@ void registerStatusPageHandlers(WebServer& server) {
     server.on("/status", [&server]() {
         serveFile(server, "/web/status.html", "text/html");
     });
+
     server.on("/api/diagnostic-data", [&server]() {
         server.send(200, "application/json", _getDiagnosticDataJSON());
     });
@@ -25,6 +26,7 @@ String _getDiagnosticDataJSON() {
     doc["wifiConnected"] = data.wifiConnected;
     doc["rssi"] = data.rssi;
     doc["deviceTemperature"] = data.deviceTemperature;
+    doc["ssid"] = data.ssid;
     
     String json;
     serializeJson(doc, json);

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Device Status</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/water.css@2/out/water.css">
+    <link rel="stylesheet" href="/css/water.min.css">
     <style>
         .status-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; }
         .card { border: 1px solid var(--border); padding: 1rem; border-radius: 0.5rem; }
@@ -119,11 +119,11 @@
                     
                     if (data.wifiConnected) {
                         indicator.className = 'status connected';
-                        status.textContent = 'Connected';
+                        status.textContent = data.ssid;
                         rssi.textContent = 'Signal: ' + (data.rssi || '--') + ' dBm';
                     } else {
                         indicator.className = 'status disconnected';
-                        status.textContent = 'Disconnected';
+                        status.textContent = 'Hotspot Mode';
                         rssi.textContent = 'Signal: -- dBm';
                     }
                     
