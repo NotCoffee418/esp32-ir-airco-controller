@@ -21,46 +21,57 @@
     </style>
 </head>
 <body>
-    <div class="header">
-        <h1>Device Status</h1>
-        <div class="last-updated" id="lastUpdated">Loading...</div>
-    </div>
-
-    <div id="errorMessage" class="error" style="display: none;">
-        Failed to connect to device. Retrying...
-    </div>
-
-    <div class="status-grid">
-        <div class="card">
-            <h3>RAM Usage</h3>
-            <div class="value" id="ramValue">--</div>
-        </div>
-
-        <div class="card">
-            <h3>Flash Usage</h3>
-            <div class="value" id="flashValue">--</div>
-        </div>
-
-        <div class="card">
-            <h3>Uptime</h3>
-            <div class="value" id="uptimeValue">--</div>
-        </div>
-
-        <div class="card">
-            <h3>WiFi Status</h3>
-            <div class="value">
-                <span class="status" id="wifiIndicator"></span>
-                <span id="wifiStatus">--</span>
+    <nav style="padding: 1rem 0; margin-bottom: 2rem; border-bottom: 1px solid var(--border);">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h2 style="margin: 0;">Airco Controller</h2>
+            <div>
+                <a href="/status" style="margin-right: 1rem;">Status</a>
+                <a href="/configure">Configuration</a>
             </div>
-            <div class="unit" id="rssiValue">Signal: -- dBm</div>
+        </div>
+    </nav>
+    <main>
+        <div class="header">
+            <h1>Device Status</h1>
+            <div class="last-updated" id="lastUpdated">Loading...</div>
         </div>
 
-        <div class="card">
-            <h3>Device Temperature</h3>
-            <div class="value" id="tempValue">--</div>
-            <div class="unit">°C</div>
+        <div id="errorMessage" class="error" style="display: none;">
+            Failed to connect to device. Retrying...
         </div>
-    </div>
+
+        <div class="status-grid">
+            <div class="card">
+                <h3>RAM Usage</h3>
+                <div class="value" id="ramValue">--</div>
+            </div>
+
+            <div class="card">
+                <h3>Flash Usage</h3>
+                <div class="value" id="flashValue">--</div>
+            </div>
+
+            <div class="card">
+                <h3>Uptime</h3>
+                <div class="value" id="uptimeValue">--</div>
+            </div>
+
+            <div class="card">
+                <h3>WiFi Status</h3>
+                <div class="value">
+                    <span class="status" id="wifiIndicator"></span>
+                    <span id="wifiStatus">--</span>
+                </div>
+                <div class="unit" id="rssiValue">Signal: -- dBm</div>
+            </div>
+
+            <div class="card">
+                <h3>Device Temperature</h3>
+                <div class="value" id="tempValue">--</div>
+                <div class="unit">°C</div>
+            </div>
+        </div>
+    </main>
 
     <script>
         let refreshInterval;
