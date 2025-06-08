@@ -3,4 +3,5 @@
 #include <Arduino.h>
 
 String getSetupHotspotName();
-String getSetupHotspotPassword();
+String getAccessPin();
+String generateRandomString(int length);

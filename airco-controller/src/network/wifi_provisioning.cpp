@@ -135,7 +135,8 @@ void startHotspot() {
 
     // Set up access point with PIN as password
     String apName = getSetupHotspotName();
-    bool apStarted = WiFi.softAP(apName.c_str());
+    String apPass = getAccessPin();
+    bool apStarted = WiFi.softAP(apName.c_str(), apPass.c_str());
     if (!apStarted) {
         Serial.println("AP: Failed to start access point");
         delay(1000);

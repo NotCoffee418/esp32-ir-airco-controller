@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Airco Controller</title>
+    <link rel="stylesheet" href="/css/water.min.css">
+    <style>
+        .error-message {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+            padding: 0.75rem;
+            border-radius: 0.25rem;
+            margin-bottom: 1rem;
+            display: none;
+        }
+        .login-form {
+            max-width: 400px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        .pin-input {
+            text-align: center;
+            font-family: monospace;
+            font-size: 1.2rem;
+            letter-spacing: 0.2rem;
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+<body>
+    <nav style="padding: 1rem 0; margin-bottom: 2rem; border-bottom: 1px solid var(--border);">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h2 style="margin: 0;">Airco Controller</h2>
+            <div>
+                <span style="color: var(--text-muted);">Login Required</span>
+            </div>
+        </div>
+    </nav>
+    <main>
+        <div class="login-form">
+            <h3>Device Access</h3>
+            <p>Enter the 8-character PIN found on the bottom of your device:</p>
+            
+            <div id="error-message" class="error-message">
+                Invalid PIN. Please check the code on your device and try again.
+            </div>
+            
+            <form method="POST" action="/login">
+                <div>
+                    <label for="accessPin">Access PIN:</label>
+                    <input 
+                        type="text" 
+                        id="accessPin" 
+                        name="accessPin" 
+                        maxlength="8" 
+                        required 
+                        class="pin-input"
+                        placeholder="########"
+                        autocomplete="off"
+                        autofocus>
+                </div>
+                <button type="submit">Login</button>
+            </form>
+        </div>
+    </main>
+
+    <script>
+        // Show error message if login failed
+        const urlParams = new URLSearchParams(window.location.search);
+        if (urlParams.get('failed') === 'true') {
+            document.getElementById('error-message').style.display = 'block';
+        }
+
+        // Auto-uppercase PIN input
+        document.getElementById('accessPin').addEventListener('input', function(e) {
+            e.target.value = e.target.value.toUpperCase();
+        });
+    </script>
+</body>
+</html>

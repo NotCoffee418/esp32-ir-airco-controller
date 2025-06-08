@@ -34,6 +34,12 @@ void setup() {
 	Config config;
 	getConfig(config);
 
+	// Set WiFi to persistent mode to off (applies to all modes).
+	// Prevents using old credentials despite explicitly defining them otherwise.
+	// Persists between flashes and reboots in magic storage we do not want..
+	// Manual wipe: esptool.py --chip esp32 erase_region 0x9000 0x6000
+	WiFi.persistent(false);
+
 	// Setup WiFi
 	_inHotspotMode = config.bootInHotspotMode;
 	if (_inHotspotMode) {
@@ -52,7 +58,7 @@ void setup() {
 	// Report device identity
 	Serial.println("MAC Address: " + String(WiFi.macAddress()));
 	Serial.println("Hotspot name: " + getSetupHotspotName());
-	Serial.println("Admin PIN: " + getSetupHotspotPassword());
+	Serial.println("Admin PIN: " + getAccessPin());
 	printDiagnosticData();
 }
 

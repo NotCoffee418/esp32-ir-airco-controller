@@ -2,6 +2,7 @@
 #include "web_helpers.h"
 #include "storage/config.h"
 #include "network/wifi_provisioning.h"
+#include "authorization.h"
 #include <ArduinoJson.h>
 
 // Private functions
@@ -10,14 +11,25 @@ void _saveWifiConfigJSON(String json);
 
 void registerConfigureWifiPageHandlers(WebServer& server) {    
 	server.on("/configure", [&server]() {
+        if (!authorizeHandler(server)) {
+            return;
+        }
+        
 		serveFile(server, "/web/configure_wifi.html", "text/html");
 	});
 
     server.on("/api/get-wifi-config", [&server]() {
+        if (!authorizeHandler(server)) {
+            return;
+        }
         server.send(200, "application/json", _getWifiConfigJSON());
     });
 
     server.on("/api/set-wifi-config", [&server]() {
+        if (!authorizeHandler(server)) {
+            return;
+        }
+        
         // Take post body and parse as JSON
         String json = server.arg("plain");
         

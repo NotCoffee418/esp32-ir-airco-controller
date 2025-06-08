@@ -6,6 +6,7 @@
 #include "page_status.h"
 #include "web_helpers.h"
 #include "page_configure_wifi.h"
+#include "page_login.h"
 
 // Private functions
 void _handleCaptivePortalDetection();
@@ -15,6 +16,12 @@ void _setupHotspotCaptureEndpoints();
 WebServer server(80);
 
 void webServerSetup(bool includeHotspotCapture) {
+	// Tell the server to collect Cookie headers
+    const char* headerKeys[] = {"Cookie"};
+    size_t headerKeysSize = sizeof(headerKeys) / sizeof(char*);
+    server.collectHeaders(headerKeys, headerKeysSize);
+
+
 	// Redirect index based on mode
 	String indexRedirect = "/status";
 	if (includeHotspotCapture) {
@@ -35,6 +42,7 @@ void webServerSetup(bool includeHotspotCapture) {
 	// Register handler groups
 	registerStatusPageHandlers(server);
 	registerConfigureWifiPageHandlers(server);
+	registerLoginPageHandlers(server);
 
 	server.onNotFound([]() { 
 		String uri = server.uri();
@@ -69,6 +77,7 @@ void _setupHotspotCaptureEndpoints() {
     // Firefox captive portal detection
     server.on("/canonical.html", _handleCaptivePortalDetection);
     server.on("/success.txt", _handleCaptivePortalDetection);
+    server.on("/static/hotspot.txt", _handleCaptivePortalDetection);
 }
 
 
