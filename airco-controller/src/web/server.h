@@ -2,6 +2,6 @@
 
 class WebServer;
 
-void webServerSetup();
+void webServerSetup(bool includeHotspotCapture);
 void handleWebRequests();
-void serveFile(const char* path, const char* contentType);
+WebServer* getServerInstance();
