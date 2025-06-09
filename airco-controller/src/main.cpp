@@ -84,8 +84,7 @@ void loop() {
 	// Periodic WiFi health check in all modes
 	// Will restart in correct mode if needed
 	if (millis() - _lastWifiHealthCheck > _WIFI_HEALTH_CHECK_INTERVAL_MS) {
-		
-		Serial.println("Running WiFi health check...");
+		Serial.println("Health check at " + String(millis()));
 		WifiState wifiState = determineWifiState();
 		switch (wifiState) {
 			case WIFI_CONNECTED:
@@ -102,13 +101,15 @@ void loop() {
 		// Print system stats
 		printDiagnosticData();
 
+		// Get fresh temperature reading and report it
+		// Not just for health check, we also use this to update cached value.
+		float tempC = getFreshTempC();
+		Serial.println("Temperature Sensor: " + String(tempC));
+
 		// Reset timer
 		_lastWifiHealthCheck = millis();
 	}
 
 	// Handle web requests
 	handleWebRequests();
-
-	// Print temperature
-	Serial.println("Temperature: " + String(getTempC()));
 }

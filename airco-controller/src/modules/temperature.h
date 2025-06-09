@@ -1,4 +1,5 @@
 #pragma once
 
 void setupTemperatureSensor();
-float getTempC();
+float getFreshTempC();
+float getCachedTempC();
