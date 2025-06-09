@@ -93,8 +93,18 @@ WifiState determineWifiState() {
     // All are treated the same at this point.
 
     // We're in hotspot mode and not connected to a network.
-    // We don't need to restart, but give user the opportunity to change credentials.
+    // Check if we can try to connect to a network and reboot into STA mode if we can.
+    // If we can't, we're stuck in hotspot mode.
     if (config.bootInHotspotMode) {
+        // Try to connect to a network
+        if (startWifiConnection(false)) {
+            setBootInHotspotMode(false);
+            Serial.println("WiFi: Healthy WiFi connection found. Rebooting to disable hotspot mode.");
+            ESP.restart();
+            return WIFI_UNDEFINED;
+        }
+
+        // No luck, staying in hotspot mode.
         return WIFI_HOTSPOT_MODE;
     }
 
@@ -163,10 +173,41 @@ bool startWifiConnection(bool setMode) {
     Config config;
     getConfig(config);
 
+    // Set mode if requested
     if (setMode) {
         WiFi.mode(WIFI_STA);
     }
 
+    // Return false right away if no ssid is set
+    if (config.ssid.length() == 0) {
+        Serial.println("WiFi: No SSID set. Cannot connect.");
+        return false;
+    }
+
+    // Check if we can find the ssid in the area
+    bool found = false;
+    for (uint8_t i = 0; i < 3; i++) {
+        int networks = WiFi.scanNetworks();
+        for (uint8_t j = 0; j < networks; j++) {
+            if (WiFi.SSID(j) == config.ssid) {
+                found = true;
+                Serial.println("WiFi: Found SSID: " + config.ssid);
+                break;
+            }
+        }
+        if (found) {
+            break;
+        }
+        delay(1000);
+    }
+
+    if (!found) {
+        Serial.println("WiFi: SSID not found in area. Cannot connect.");
+        return false;
+    }
+    Serial.println("WiFi: Found SSID in area. Connecting...");
+
+    // Set up IP address if not using DHCP
     if (!config.useDhcp) {
         WiFi.config(config.networkDeviceIp, config.networkGateway, config.networkSubnetMask, config.networkDnsServer);
     }
@@ -178,6 +219,7 @@ bool startWifiConnection(bool setMode) {
         return false;
     }
 
+    Serial.println("WiFi: Connected");
     return true;
 }
 

@@ -12,7 +12,7 @@
 #include "modules/ir_remote.h"
 
 // private constants
-const unsigned long _WIFI_HEALTH_CHECK_INTERVAL_MS = 60000;
+const unsigned long _WIFI_HEALTH_CHECK_INTERVAL_MS = 30000;
 
 // Global private variables
 static bool _inHotspotMode = false;
@@ -50,7 +50,7 @@ void setup() {
 	if (_inHotspotMode) {
 		startHotspot();
 	} else {
-		Serial.println("Connecting to SSID: " + String(config.ssid));
+		Serial.println("Requesting connection to SSID: " + String(config.ssid));
 		bool connected = startWifiConnection(true);
 		if (!connected) {
 			Serial.println("WiFi: Failed to connect. Rebooting in hotspot mode.");
