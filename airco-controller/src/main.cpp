@@ -3,7 +3,6 @@
 #include <WiFi.h>
 
 #include "web/server.h"
-#include "temp_wifi_setup.h" // temp
 #include "network/device_identity.h"
 #include "network/wifi_provisioning.h"
 #include "storage/config.h"
@@ -23,6 +22,10 @@ void setup() {
 	// Initialize serial communication
 	Serial.begin(115200);
 	Serial.println("Booting Airco Control Unit...");
+
+	// Wait for everything to wake up 
+	// wifi sometimes won't connect without this
+	delay(3000);
 
 	// Try to initialize filesystem, but don't worry if it fails
     if (!LittleFS.begin(true)) {
@@ -46,12 +49,16 @@ void setup() {
 	_inHotspotMode = config.bootInHotspotMode;
 	if (_inHotspotMode) {
 		startHotspot();
-	} else if (!startWifiConnection(true)) {
-		Serial.println("WiFi: Failed to connect. Rebooting in hotspot mode.");
-		setBootInHotspotMode(true);
-		delay(1000);
-		ESP.restart();
-		return;
+	} else {
+		Serial.println("Connecting to SSID: " + String(config.ssid));
+		bool connected = startWifiConnection(true);
+		if (!connected) {
+			Serial.println("WiFi: Failed to connect. Rebooting in hotspot mode.");
+			setBootInHotspotMode(true);
+			delay(1000);
+			ESP.restart();
+			return;
+		}
 	}
 
 	// Setup web server (Requires an IP address)
