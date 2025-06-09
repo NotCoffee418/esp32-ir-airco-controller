@@ -3,6 +3,7 @@
 #define IR_SEND_PIN 4
 
 IRFujitsuAC ac(IR_SEND_PIN);
+volatile bool _irRemoteIsSending = false;
 
 void setupIrRemote() {
     ac.begin();
@@ -20,11 +21,26 @@ void setupIrRemote() {
     ac.setModel(fujitsu_ac_remote_model_t::ARREB1E); // 
 }
 
-void turnOffAC() {
+bool turnOffAC() {
+    if (_irRemoteIsSending) {
+        return false;
+    }
+    _irRemoteIsSending = true;
+
+    // Small delay to let ESP32 settle background tasks
+    delay(100);
+
+    // Turn off AC
     ac.off();
+
+    portDISABLE_INTERRUPTS();
     ac.send();
+    portENABLE_INTERRUPTS();
 
     Serial.println("AC turned OFF");
+
+    _irRemoteIsSending = false;
+    return true;
 }
 
 // Power on AC and define settings. 
@@ -51,17 +67,35 @@ void turnOffAC() {
 // Fan:
 // - AUTO works
 // - Other speeds untested
-void turnOnAC() { 
+bool turnOnAC() { 
+    if (_irRemoteIsSending) {
+        return false;
+    }
+    _irRemoteIsSending = true;
+
+    // Small delay to let ESP32 settle background tasks
+    delay(100);
+
+    // Turn on AC
     ac.setCmd(FUJITSU_AC_CMD_TURN_ON);
+
+    portDISABLE_INTERRUPTS();
     ac.send();
+    portENABLE_INTERRUPTS();
 
     // Cannot combine settings with on signal, wait 2s
     delay(2000);
 
+    // Change settings
     ac.setSwing(FUJITSU_AC_SWING_VERT);
     ac.setMode(FUJITSU_AC_MODE_COOL);
     ac.setFanSpeed(FUJITSU_AC_FAN_AUTO);
     ac.setTemp(24);
 
+    portDISABLE_INTERRUPTS();
     ac.send();
+    portENABLE_INTERRUPTS();
+
+    _irRemoteIsSending = false;
+    return true;
 }

@@ -2,5 +2,5 @@
 
 
 void setupIrRemote();
-void turnOffAC();
-void turnOnAC();
+bool turnOffAC();
+bool turnOnAC();
