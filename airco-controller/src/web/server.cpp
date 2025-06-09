@@ -7,6 +7,7 @@
 #include "web_helpers.h"
 #include "page_configure_wifi.h"
 #include "page_login.h"
+#include "api_ircontrol.h"
 
 // Private functions
 void _handleCaptivePortalDetection();
@@ -43,6 +44,7 @@ void webServerSetup(bool includeHotspotCapture) {
 	registerStatusPageHandlers(server);
 	registerConfigureWifiPageHandlers(server);
 	registerLoginPageHandlers(server);
+	registerIrControlApiHandlers(server);
 
 	server.onNotFound([]() { 
 		String uri = server.uri();

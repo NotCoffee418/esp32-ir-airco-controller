@@ -10,6 +10,7 @@
 #include "diagnostic.h"
 #include "storage/config.h"
 #include "modules/temperature.h"
+#include "modules/ir_remote.h"
 
 // private constants
 const unsigned long _WIFI_HEALTH_CHECK_INTERVAL_MS = 60000;
@@ -56,8 +57,9 @@ void setup() {
 	// Setup web server (Requires an IP address)
 	webServerSetup(_inHotspotMode);
 
-	// Setup temperature sensor
+	// setup modules
 	setupTemperatureSensor();
+	setupIrRemote();
 
 	// Report device identity
 	Serial.println("MAC Address: " + String(WiFi.macAddress()));
