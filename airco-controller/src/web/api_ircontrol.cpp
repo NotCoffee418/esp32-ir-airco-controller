@@ -15,7 +15,7 @@ void registerIrControlApiHandlers(WebServer& server) {
         // if (!authorizeHandler(server)) {
         //     return;
         // }
-        turnOnAC1();
+        turnOnAC();
         server.send(200, "text/plain", "AC turned on at " + String(millis()));
     });
 
