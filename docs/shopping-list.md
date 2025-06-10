@@ -25,12 +25,22 @@ yes - 2x DS18B20 - https://www.gotron.be/waterproof-ds18b20-digital-temperature-
 yes - 2x cable gland - https://www.gotron.be/kabelwartel-zwart-pg7.html  
 yes - 2x R1/4W/4K7 - https://www.gotron.be/ra4k7-weerstand-1-4w-4-7-kohm-koolstoffilmlaag.html
 
+# Switch
+2x mode switch
+https://www.gotron.be/componenten/schakelmat/schakelaars/toestel/toestelschakelaar-enkelpolig-on-off-spst-6a-250v-zwart.html
 
 # Power
 yes 2x https://www.gotron.be/energie/voedingen/gestabiliseerd/usb/usb-voeding-4w.html
 no 2x https://www.gotron.be/usb-a-male-naar-usb-c-male-kabel-lengte-1-5m-usb3-0.html
 
---
-cable count check
-power supply
---
+# Screws
+1x set of 100 need 8+
+https://www.gotron.be/installatie/montage/verbindingsmat/diverse/zelftappende-schroef-2-2x6-5mm-100st.html
+
+# Connector
+2x for joined ground
+https://www.gotron.be/installatie/installatiemat/verbindingsmateriaal/lusterklemmen/wago-connector-5-polig-0-2-4mm-32a-400v.html
+
+1x set for mide switch button
+https://www.gotron.be/opschuifcontact-vrouwelijk-4-8x0-8mm-blauw-10-stuks.html
+
