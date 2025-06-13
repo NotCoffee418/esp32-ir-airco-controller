@@ -19,7 +19,7 @@ union() {
 	}
 
 	// Device holder unit left
-	translate([30, 0, 30]) {
+	translate([30, 20, 30]) {
 		rotate([90, 0, 0]) {
 			device_holder_unit(140, -30, 0, true);
 		}
@@ -33,9 +33,14 @@ union() {
 	}
 
 	// Back panel
-	outer_case_back_side(200,0,0); // mind the rounded side!
+	outer_case_back_side(230,0,0); // mind the rounded side!
 	rotate([0, 0, 90]) {
-		back_panel_cover(120, -270, 0);
+		back_panel_cover(120, -300, 0);
+	}
+
+	// Floor
+	translate([120, 50, 0]) {
+		floor();
 	}
 }
 
@@ -56,6 +61,9 @@ module rounded_square_wall(pos, size, radius) {
 		}
 }
 
+module floor() {
+	cube([94,94,3]);
+}
 
 
 // 8 wide
