@@ -2,12 +2,12 @@
 translate([0, 0, 0])
 union() {
 	outer_case_without_left_and_back_side(0,0,0);
-	outer_case_left_and_back_side(150,0,0);
 	device_holder_slider_bottom(110, -30);
 	device_holder_unit(140, -30, 0, true);
 	device_holder_unit(80, -30, 0, false);
 
 	// Back panel
+	outer_case_back_side(200,10,0); // mind the rounded side!
 	back_panel_cover(-150, 0, 0);
 }
 
@@ -91,11 +91,11 @@ module outer_case_without_left_and_back_side(x, y, z) {
 
 
 
-module outer_case_left_and_back_side(x, y, z) {
+module outer_case_back_side(x, y, z) {
 	translate([x, y, z]) {
 		difference() {
 			rounded_cube([100, 100, 100], 2);
-			translate([3, 0, 3])             // 3mm wall thickness
+			translate([0, 0, 3])             // 3mm wall thickness
 				cube([100, 100, 100]);       // inner cavity (leave 3mm bottom and back)
 			translate([0,0,0])				// Cut off left rounded wall
 				cube([100, 3, 100]);
@@ -106,6 +106,13 @@ module outer_case_left_and_back_side(x, y, z) {
 				cube([100, 100, 3]);
 			translate([97,0,0])				// Cut off front rounded wall
 				cube([3, 100, 100]);
+
+			// Back cover slot
+			translate([65,3+94-80-7,0]) {
+				rotate([0, 0, 90]) {
+					back_panel_cover(-0, 0, 0, false);
+				}
+			}
 		}
 	}
 }
