@@ -29,9 +29,18 @@ module outer_case_without_left_and_back_side(x, y, z) {
 module outer_case_left_and_back_side(x, y, z) {
 	translate([x, y, z]) {
 		difference() {
-			cube([94, 94, 94]);
-			translate([-3, 0, 3])             // 3mm wall thickness
-				cube([94, 100, 94]);          // inner cavity (leave 3mm bottom)
+			rounded_cube([100, 100, 100], 2);
+			translate([3, 0, 3])             // 3mm wall thickness
+				cube([100, 100, 100]);       // inner cavity (leave 3mm bottom and back)
+			translate([0,0,0])				// Cut off left rounded wall
+				cube([100, 3, 100]);
+			translate([0,97,0])				// Cut off right rounded wall
+				cube([100, 3, 100]);
+
+			translate([0,0,97])				// Cut off top rounded wall
+				cube([100, 100, 3]);
+			translate([97,0,0])				// Cut off front rounded wall
+				cube([3, 100, 100]);
 		}
 	}
 }
