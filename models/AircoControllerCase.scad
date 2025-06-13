@@ -62,19 +62,44 @@ module screw_hole_holder(x, y, z, with_difference_hole=true) {
 	}
 }
 
+module air_vent() {
+	translate([0,0,-2]) {
+		rounded_cube([50, 5, 7], 2);
+	}
+}
+
 // is_true_panel: true: actual panel, false: difference hole
 module back_panel_cover(x, y, z, is_true_panel=true) {
 	translate([x, y, z]) {
-		rounded_square_wall([0, 0, 0], [80, 50,1.5], 1.5); // bot layer
-		rounded_square_wall([3, 3, 1.5], [74, 44,1.5], 1.5); // top layer
-		screw_hole_holder(10, -10, 0, is_true_panel);
-		screw_hole_holder(62, -10, 0, is_true_panel);
-		translate([80, 60, 0]) {
-			rotate([0, 0, 180]) {
-				screw_hole_holder(10, 0, 0, is_true_panel);
-				screw_hole_holder(62, 0, 0, is_true_panel);
+		difference() {
+			// Back cover panel
+			union() {
+				rounded_square_wall([0, 0, 0], [80, 50,1.5], 1.5); // bot layer
+				rounded_square_wall([3, 3, 1.5], [74, 44,1.5], 1.5); // top layer
+				screw_hole_holder(10, -10, 0, is_true_panel);
+				screw_hole_holder(62, -10, 0, is_true_panel);
+				translate([80, 60, 0]) {
+					rotate([0, 0, 180]) {
+						screw_hole_holder(10, 0, 0, is_true_panel);
+						screw_hole_holder(62, 0, 0, is_true_panel);
+					}
+				}
 			}
-		}
+			// Air cents
+			if (is_true_panel) {
+				union() {
+					translate([15,11.5,0]) {
+						air_vent();
+					}
+					translate([15,22.5,0]) {
+						air_vent();
+					}
+					translate([15,33.5,0]) {
+						air_vent();
+					}
+				}
+			}
+		}		
 	}
 }
 
