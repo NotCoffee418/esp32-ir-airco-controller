@@ -1,14 +1,42 @@
+// beginning of board rest levels relative to case floor
+board_rest_floor_diff = 20;
+
+
+// USB slot hole size
+usbc_slot_width = 9.88;
+usbc_slot_height = 4.1;
+
 // Case Shell without right side
 translate([0, 0, 0])
 union() {
 	outer_case_without_left_and_back_side(0,0,0);
-	device_holder_slider_bottom(110, -30);
-	device_holder_unit(140, -30, 0, true);
-	device_holder_unit(80, -30, 0, false);
+
+	// Device holder slider bottom
+	translate([20, 0, 10]) {
+		rotate([180, 0, 0]) {
+			device_holder_slider_bottom(110, -30);
+		}
+	}
+
+	// Device holder unit left
+	translate([30, 0, 30]) {
+		rotate([90, 0, 0]) {
+			device_holder_unit(140, -30, 0, true);
+		}
+	}
+
+	// Device holder unit right
+	translate([30, 0, -15]) {
+		rotate([270, 0, 0]) {
+			device_holder_unit(80, -30, 0, false);
+		}
+	}
 
 	// Back panel
-	outer_case_back_side(200,10,0); // mind the rounded side!
-	back_panel_cover(-150, 0, 0);
+	outer_case_back_side(200,0,0); // mind the rounded side!
+	rotate([0, 0, 90]) {
+		back_panel_cover(120, -270, 0);
+	}
 }
 
 module rounded_cube(size, radius) {
@@ -28,7 +56,6 @@ module rounded_square_wall(pos, size, radius) {
 		}
 }
 
-// Usage: extrude the 2D shape
 
 
 // 8 wide
@@ -114,9 +141,56 @@ module outer_case_without_left_and_back_side(x, y, z) {
 	}
 }
 
+// 9.88mm x 4.1mm USB-C port hole - sticks 1.5mm out of board
+module usbc_slot() {
+    linear_extrude(height=3) {
+        hull() {
+            translate([1.5, 1.5]) circle(r=1.5, $fn=32);
+            translate([8.38, 1.5]) circle(r=1.5, $fn=32);
+            translate([8.38, 2.6]) circle(r=1.5, $fn=32);
+            translate([1.5, 2.6]) circle(r=1.5, $fn=32);
+        }
+    }
+}
+
+module usbc_slot_with_holder() {
+    inside_layer_offset = 1.5;
+
+	usbc_slot_inner_padding = 0.5;
+
+
+    board_rest_width = 30;
+    board_rest_height = 2;
+
+    // Board Rest
+    translate([0, board_rest_height + usbc_slot_height/2, inside_layer_offset]) {
+        cube([board_rest_width, usbc_slot_height, inside_layer_offset]);
+    }
+
+	// USBC slot inner padding
+	translate([(board_rest_width - usbc_slot_width)/2 - usbc_slot_inner_padding/2, 0 - usbc_slot_inner_padding/2, inside_layer_offset]) {
+		cube([usbc_slot_width + usbc_slot_inner_padding, usbc_slot_height + usbc_slot_inner_padding, inside_layer_offset]);
+	}
+
+    // USB-C port hole
+    translate([(board_rest_width - usbc_slot_width)/2, 0, 0]) {
+        usbc_slot();
+    }
+
+	// Button padding right
+	translate([board_rest_width/2+usbc_slot_width/2+1.7, 1, inside_layer_offset]) {
+		cube([4, 4, inside_layer_offset]);
+	}
+
+	// Button padding left
+	translate([board_rest_width/2-usbc_slot_width/2-1.7-4, 1, inside_layer_offset]) {
+		cube([4, 4, inside_layer_offset]);
+	}
+}
 
 
 module outer_case_back_side(x, y, z) {
+	// 3mm missing on each side except top side, yet part of the case
 	translate([x, y, z]) {
 		difference() {
 			rounded_cube([100, 100, 100], 2);
@@ -138,6 +212,13 @@ module outer_case_back_side(x, y, z) {
 					back_panel_cover(-0, 0, 0, false);
 				}
 			}
+
+			// USB-C slot
+			translate([3+94-board_rest_floor_diff + 4.1, 3+94/2-30/2 ,0]) {
+				rotate([0, 0, 90]) {
+					usbc_slot_with_holder();
+				}
+			}
 		}
 	}
 }
@@ -155,7 +236,7 @@ module device_holder_slider_bottom(x, y) {
 	union() {
 		// Left bar
 		// X 0 to 7.5
-		translate([x, y, 3]) {
+		translate([x, y, 0]) {
 			difference() {
 				rounded_cube([7.5-slide_clearance, depth, 10], 0.2);
 				translate([5-slide_clearance, 0-rounding_cutoff, 0-rounding_cutoff])
@@ -165,7 +246,7 @@ module device_holder_slider_bottom(x, y) {
 
 		// Right bar
 		// X 12.5 to 20
-		translate([x+12.5+slide_clearance*2, y, 3]) {
+		translate([x+12.5+slide_clearance*2, y, 0]) {
 			difference() {
 				rounded_cube([7.5-slide_clearance, depth, 10], 0.2);
 				translate([-rounding_cutoff,-rounding_cutoff,-rounding_cutoff])
@@ -175,7 +256,7 @@ module device_holder_slider_bottom(x, y) {
 
 		// Center block
 		block_size = depth-single_slot_depth*2;
-		translate([x, y+single_slot_depth, 3]) {
+		translate([x, y+single_slot_depth, 0]) {
 			rounded_cube([20+slide_clearance, block_size, 10], 0.2);
 		}
 	}
@@ -197,7 +278,7 @@ module device_holder_unit(x, y, z, is_left_holder) {
 		}
 		// Middle slide block
 		translate([x+2.5+slide_clearance, y, z+5-slide_clearance-1]) {
-			rounded_cube([5-slide_clearance, single_slot_depth, 10 + slide_clearance + 1], 0.2); // Arbitrary height for slide access without breaking risk
+			rounded_cube([5-slide_clearance, single_slot_depth, 5 + slide_clearance], 0.2); // Arbitrary height for slide access without breaking risk
 		}
 
 		// Total height for slide system without beams is now 15mm from case floor
@@ -206,8 +287,8 @@ module device_holder_unit(x, y, z, is_left_holder) {
 		if (is_left_holder) {
 			translate([x+2.5+slide_clearance,y,z]) {
 				difference() {
-					rounded_cube([5-slide_clearance, 5, device_grip_height+5], 0.2);
-					translate([-rounding_cutoff, 3-rounding_cutoff, device_grip_height]) {
+					rounded_cube([5-slide_clearance, 5, board_rest_floor_diff+5], 0.2);
+					translate([-rounding_cutoff, 3-rounding_cutoff, board_rest_floor_diff]) {
 						rounded_cube([3+rounding_cutoff, 3+rounding_cutoff, 2], 0.2);
 					}
 				}
@@ -215,8 +296,8 @@ module device_holder_unit(x, y, z, is_left_holder) {
 		} else {
 			translate([x+2.5+slide_clearance,y+single_slot_depth-5,z]) {
 				difference() {
-					rounded_cube([5, 5, device_grip_height+5], 0.2);
-					translate([-rounding_cutoff, -rounding_cutoff, device_grip_height]) {
+					rounded_cube([5, 5, board_rest_floor_diff+5], 0.2);
+					translate([-rounding_cutoff, -rounding_cutoff, board_rest_floor_diff]) {
 						rounded_cube([3+rounding_cutoff, 3+rounding_cutoff, 2], 0.2);
 					}
 				}
