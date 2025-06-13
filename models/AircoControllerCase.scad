@@ -5,7 +5,10 @@ union() {
 	outer_case_left_and_back_side(150,0,0);
 	device_holder_slider_bottom(110, -30);
 	device_holder_unit(140, -30, 0, true);
-	device_holder_unit(160, -30, 0, false);
+	device_holder_unit(80, -30, 0, false);
+
+	// Back panel
+	back_panel_cover(-150, 0, 0);
 }
 
 module rounded_cube(size, radius) {
@@ -16,6 +19,66 @@ module rounded_cube(size, radius) {
         }
 }
 
+module rounded_square_wall(pos, size, radius) {
+	translate([pos[0]+radius, pos[1]+radius, pos[2]])
+		linear_extrude(height=size[2]) 
+			minkowski() {
+				square([size[0]-2*radius, size[1]-2*radius]);
+			circle(r=radius, $fn=50);
+		}
+}
+
+// Usage: extrude the 2D shape
+
+
+// 8 wide
+// with_difference_hole: 
+// true: simulates a screw (used to difference in case)
+// false: actual hole as visible
+module screw_hole_holder(x, y, z, with_difference_hole=true) {
+	translate([x,y+5,z]) {
+		linear_extrude(height=1.5) { 
+			difference() {
+				union() {
+					square([8, 5]); // Attahment clip square part
+					translate([4, 0, 0]) // Attachment clip round part
+						circle(r=4, $fn=100);
+
+				}
+				if (with_difference_hole) {
+					translate([4, 0, 0])
+						circle(r=2.5/2, $fn=50); // Screw hole
+				}
+			}
+			
+		}
+		if (!with_difference_hole) {
+			translate([4, 0, 0]) {
+				linear_extrude(height=3) {
+					circle(r=2.5/2, $fn=50); // Screw hole
+				}
+			}
+		}
+	}
+}
+
+// is_true_panel: true: actual panel, false: difference hole
+module back_panel_cover(x, y, z, is_true_panel=true) {
+	translate([x, y, z]) {
+		rounded_square_wall([0, 0, 0], [80, 50,1.5], 1.5); // bot layer
+		rounded_square_wall([3, 3, 1.5], [74, 44,1.5], 1.5); // top layer
+		screw_hole_holder(10, -10, 0, is_true_panel);
+		screw_hole_holder(62, -10, 0, is_true_panel);
+		translate([80, 60, 0]) {
+			rotate([0, 0, 180]) {
+				screw_hole_holder(10, 0, 0, is_true_panel);
+				screw_hole_holder(62, 0, 0, is_true_panel);
+			}
+		}
+	}
+}
+
+
 module outer_case_without_left_and_back_side(x, y, z) {
 	translate([x, y, z]) {
 		difference() {
@@ -25,6 +88,8 @@ module outer_case_without_left_and_back_side(x, y, z) {
 		}
 	}
 }
+
+
 
 module outer_case_left_and_back_side(x, y, z) {
 	translate([x, y, z]) {
