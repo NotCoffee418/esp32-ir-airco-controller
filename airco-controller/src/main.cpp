@@ -10,6 +10,7 @@
 #include "storage/config.h"
 #include "modules/temperature.h"
 #include "modules/ir_remote.h"
+#include "modules/mode_switch.h"
 
 // private constants
 const unsigned long _WIFI_HEALTH_CHECK_INTERVAL_MS = 30000;
@@ -67,6 +68,7 @@ void setup() {
 	// setup modules
 	setupTemperatureSensor();
 	setupIrRemote();
+	setupModeSwitch();
 
 	// Report device identity
 	Serial.println("MAC Address: " + String(WiFi.macAddress()));
@@ -76,6 +78,9 @@ void setup() {
 }
 
 void loop() {
+	bool modeSwitchState = isModeSwitchOnAuto();
+	Serial.println("Mode switch state: " + String(modeSwitchState));
+
 	if (_inHotspotMode) {
 	// Handle web and hotspot DNS requests
 		handleHotspotDnsRequests();

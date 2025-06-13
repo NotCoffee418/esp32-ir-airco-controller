@@ -26,7 +26,7 @@ yes - 2x cable gland - https://www.gotron.be/kabelwartel-zwart-pg7.html
 yes - 2x R1/4W/4K7 - https://www.gotron.be/ra4k7-weerstand-1-4w-4-7-kohm-koolstoffilmlaag.html
 
 # Switch
-2x mode switch
+2x mode switch MS100A
 https://www.gotron.be/componenten/schakelmat/schakelaars/toestel/toestelschakelaar-enkelpolig-on-off-spst-6a-250v-zwart.html
 
 # Power

@@ -15,3 +15,10 @@ Short leg - GND
 ## IR receiver
 
 TSOP2238 - https://www.gotron.be/componenten/actief/opto/zender-ontvanger/ir-receiver-demodulator-38khz-1.html
+
+# Mode switch
+
+MS100A - https://www.gotron.be/componenten/schakelmat/schakelaars/toestel/toestelschakelaar-enkelpolig-on-off-spst-6a-250v-zwart.html
+
+Pin GND
+Pin D12
