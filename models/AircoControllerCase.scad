@@ -1,7 +1,8 @@
 // Case Shell without right side
 translate([0, 0, 0])
 union() {
-	outer_case_without_left_side();
+	outer_case_without_left_and_back_side(0,0,0);
+	outer_case_left_and_back_side(150,0,0);
 	device_holder_slider_bottom(110, -30);
 	device_holder_unit(140, -30, 0, true);
 	device_holder_unit(160, -30, 0, false);
@@ -15,11 +16,23 @@ module rounded_cube(size, radius) {
         }
 }
 
-module outer_case_without_left_side() {
-	difference() {
-		rounded_cube([100, 100, 100], 2);
-		translate([3, 3, 3])             // 3mm wall thickness
-			cube([97, 94, 94]);          // inner cavity (leave 3mm bottom)
+module outer_case_without_left_and_back_side(x, y, z) {
+	translate([x, y, z]) {
+		difference() {
+			rounded_cube([100, 100, 100], 2);
+			translate([3, 3, 3])             // 3mm wall thickness
+				cube([97, 94, 97]);          // inner cavity (leave 3mm bottom)
+		}
+	}
+}
+
+module outer_case_left_and_back_side(x, y, z) {
+	translate([x, y, z]) {
+		difference() {
+			cube([94, 94, 94]);
+			translate([-3, 0, 3])             // 3mm wall thickness
+				cube([94, 100, 94]);          // inner cavity (leave 3mm bottom)
+		}
 	}
 }
 
@@ -68,6 +81,7 @@ module device_holder_unit(x, y, z, is_left_holder) {
 	single_slot_depth = 15;
 	slide_clearance = 0.05;
 	device_grip_height = 30; // Bare minimum 20mm
+	rounding_cutoff = 1;
 
 
 	union() {
@@ -85,11 +99,21 @@ module device_holder_unit(x, y, z, is_left_holder) {
 		// Holder support beam 3mm  on either side of device free
 		if (is_left_holder) {
 			translate([x+2.5+slide_clearance,y,z]) {
-				rounded_cube([5-slide_clearance, 5, device_grip_height], 0.2);
+				difference() {
+					rounded_cube([5-slide_clearance, 5, device_grip_height+5], 0.2);
+					translate([-rounding_cutoff, 3-rounding_cutoff, device_grip_height]) {
+						rounded_cube([3+rounding_cutoff, 3+rounding_cutoff, 2], 0.2);
+					}
+				}
 			}
 		} else {
 			translate([x+2.5+slide_clearance,y+single_slot_depth-5,z]) {
-				rounded_cube([5-slide_clearance, 5, device_grip_height], 0.2);
+				difference() {
+					rounded_cube([5, 5, device_grip_height+5], 0.2);
+					translate([-rounding_cutoff, -rounding_cutoff, device_grip_height]) {
+						rounded_cube([3+rounding_cutoff, 3+rounding_cutoff, 2], 0.2);
+					}
+				}
 			}
 		}
 	}
