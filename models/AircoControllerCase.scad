@@ -1,3 +1,13 @@
+//todo: 
+// - cover screws instead of sketchy glue? clips to receive screws?
+// - usb holder clips
+// - space on inverse backplate (so it's not ultra tight)
+// - ir hole
+// - ir inner cover
+// - mode switch hole
+// - temperature sensor hole
+// - against my better judgement, LCD for temp/status? https://www.gotron.be/0-96-oled-display-met-i2c-voor-arduino.html 
+
 // beginning of board rest levels relative to case floor
 board_rest_floor_diff = 20;
 
@@ -5,6 +15,12 @@ board_rest_floor_diff = 20;
 // USB slot hole size
 usbc_slot_width = 9.88;
 usbc_slot_height = 4.1;
+
+// Screw hole size (for 6.5mm x 2.2mm with head 1.5)
+screw_hole_depth = 6.5;
+screw_head_depth = 1.8;
+screw_hole_radius = 1.9 / 2;
+
 
 // Case Shell without right side
 translate([0, 0, 0])
@@ -65,12 +81,21 @@ module floor() {
 	cube([94,94,3]);
 }
 
+//wip
+module screw_mount_block() {
+	cube([10, 10, 10]);
+}
+
+translate([-20,0,0]) {
+	screw_mount_block();
+}
+
 
 // 8 wide
 // with_difference_hole: 
 // true: simulates a screw (used to difference in case)
 // false: actual hole as visible
-module screw_hole_holder(x, y, z, with_difference_hole=true) {
+module backplate_screw_hole_holder(x, y, z, with_difference_hole=true) {
 	translate([x,y+5,z]) {
 		linear_extrude(height=1.5) { 
 			difference() {
@@ -82,7 +107,7 @@ module screw_hole_holder(x, y, z, with_difference_hole=true) {
 				}
 				if (with_difference_hole) {
 					translate([4, 0, 0])
-						circle(r=2.5/2, $fn=50); // Screw hole
+						circle(r=screw_hole_radius, $fn=50); // Screw hole
 				}
 			}
 			
@@ -90,7 +115,7 @@ module screw_hole_holder(x, y, z, with_difference_hole=true) {
 		if (!with_difference_hole) {
 			translate([4, 0, 0]) {
 				linear_extrude(height=3) {
-					circle(r=2.5/2, $fn=50); // Screw hole
+					circle(r=screw_hole_radius, $fn=50); // Screw hole
 				}
 			}
 		}
@@ -111,12 +136,12 @@ module back_panel_cover(x, y, z, is_true_panel=true) {
 			union() {
 				rounded_square_wall([0, 0, 0], [80, 50,1.5], 1.5); // bot layer
 				rounded_square_wall([3, 3, 1.5], [74, 44,1.5], 1.5); // top layer
-				screw_hole_holder(10, -10, 0, is_true_panel);
-				screw_hole_holder(62, -10, 0, is_true_panel);
+				backplate_screw_hole_holder(10, -10, 0, is_true_panel);
+				backplate_screw_hole_holder(62, -10, 0, is_true_panel);
 				translate([80, 60, 0]) {
 					rotate([0, 0, 180]) {
-						screw_hole_holder(10, 0, 0, is_true_panel);
-						screw_hole_holder(62, 0, 0, is_true_panel);
+						backplate_screw_hole_holder(10, 0, 0, is_true_panel);
+						backplate_screw_hole_holder(62, 0, 0, is_true_panel);
 					}
 				}
 			}
