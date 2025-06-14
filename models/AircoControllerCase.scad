@@ -54,7 +54,7 @@ if (IS_PRINT_VIEW) {
 	}
 
 	// Floor
-	translate([3, 3, 0]) {
+	translate([3 , 3, 0]) {
 		floor();
 	}	
 }
@@ -227,7 +227,7 @@ module back_panel_cover(x, y, z, is_true_panel=true) {
 module outer_case_without_floor_and_back_side() {
 	
 	// Mount screw hole relative positions
-	screw_hole_pos_and_rot = get_mount_screw_hole_pos_and_rot();
+	screw_hole_pos_and_rot = get_mount_screw_head_hole_pos_and_rot();
 	shx = screw_hole_pos_and_rot[0][0];
 	shy = screw_hole_pos_and_rot[0][1];
 	shz = screw_hole_pos_and_rot[0][2];
@@ -243,14 +243,30 @@ module outer_case_without_floor_and_back_side() {
 		translate([3, 3, 3])
 			cube([97, 94, 97]);
 
-		// Screw holes right side
+		// Screw holes right side (front sided)
 		translate([100-3-shx, shy, 3+10+shz]) {
 			rotate([shrotx, shroty, shrotz]) {
-				screw_hole(3);
+				screw_head_hole(3);
+			}
+		}
+
+		// Screw holes right side (back sided)
+		translate([100-3-shx, shy, 3+74+shz]) {
+			rotate([shrotx, shroty, shrotz]) {
+				screw_head_hole(3);
+			}
+		}
+
+		// Screw holes left side (front sided)
+		translate([100-3-shx, 100-shy, 3+10+shz]) {
+			rotate([shrotx+180, shroty, shrotz]) {
+				screw_head_hole(3);
 			}
 		}
 		
 	}
+
+	
 
 	
 	
@@ -428,7 +444,7 @@ module usbc_slot_with_holder() {
 	}
 }
 
-function get_mount_screw_hole_pos_and_rot(wall_thickness=3) = 
+function get_mount_screw_head_hole_pos_and_rot(wall_thickness=3) = 
 	[
 		[screw_mount_width/2-1, wall_thickness, screw_mount_height/2],
 		[90,90,0]
@@ -456,10 +472,10 @@ module screw_head_hole(wall_thickness=3) {
 }
 
 // screw_head_offset distance claimed by case or other parts
-module screw_mount_block(wall_thickness=3) {
+module screw_mount_block(wall_thickness=3, is_head_in_wall=true) {
 	rounding_cutoff = 2;
-
-	block_depth = screw_hole_depth - wall_thickness + rounding_cutoff + 5;
+	included_head_depth = is_head_in_wall ? screw_head_depth : 0;
+	block_depth = screw_hole_depth - wall_thickness + rounding_cutoff + 3 + included_head_depth;
 	translate([0, -rounding_cutoff, -rounding_cutoff]) {
 		difference() {
 			// Mount block
@@ -479,7 +495,7 @@ module screw_mount_block(wall_thickness=3) {
 			// Screw hole in block
 			translate([screw_mount_width/2, rounding_cutoff, screw_mount_height/2+rounding_cutoff/2]) {
 				rotate([270, 0, 0]) {
-					screw_hole(screw_hole_depth-wall_thickness);
+					screw_hole(screw_hole_depth-wall_thickness+included_head_depth);
 				}
 			}			
 		}
