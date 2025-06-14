@@ -23,6 +23,7 @@ usbc_slot_height = 4.1;
 // Screw hole size (for 6.5mm x 2.2mm with head 1.5)
 screw_hole_depth = 6.5;
 screw_head_depth = 1.8;
+screw_head_radius = 4.4 / 2; // with 0.4 spacing
 screw_hole_radius = 1.9 / 2;
 
 
@@ -31,85 +32,62 @@ screw_mount_width = 10;
 screw_mount_height = 10;
 
 
+
+
+
+
 // Case Shell without right side
-translate([0, 0, 0])
-union() {
-	// print view (USE THIS ONE!)
-	if (IS_PRINT_VIEW) {
-		outer_case_without_floor_and_back_side(0,0,0);
-	} else {
-		translate([0, 0, 100]) {
-			rotate([0, 90, 90]) { 
-				outer_case_without_floor_and_back_side(0,0,0);
-			}
-		}
-	}
+if (IS_PRINT_VIEW) {
+	// Outer case without floor and back
+	outer_case_without_floor_and_back_side();
 	
-	
-	// Device holder slider bottom
-	translate([20, 0, 10]) {
-		rotate([180, 0, 0]) {
-			device_holder_slider_bottom(110, -30);
+	// Floor
+	translate([120, 50, 0]) {
+		floor();
+	}	
+} else {
+	// Outer case without floor and back
+	translate([100, 0, 100]) {
+		rotate([0, 90, 90]) { 
+			outer_case_without_floor_and_back_side();
 		}
-	}
-
-	// Device holder unit left
-	translate([30, 20, 30]) {
-		rotate([90, 0, 0]) {
-			device_holder_unit(140, -30, 0, true);
-		}
-	}
-
-	// Device holder unit right
-	translate([30, 0, -18]) {
-		rotate([270, 0, 0]) {
-			device_holder_unit(80, -30, 0, false);
-		}
-	}
-
-	// Back panel
-	outer_case_back_side(230,0,0); // mind the rounded side!
-	rotate([0, 0, 90]) {
-		back_panel_cover(120, -300, 0);
 	}
 
 	// Floor
-	translate([120, 50, 0]) {
+	translate([3, 3, 0]) {
 		floor();
 	}	
 }
 
 
-// Test screw mount piece (deleteme)
-// translate([-10, 0, 0]) {
-// 	rotate([0, 0, 0]) {
-// 		screw_mount_block(0);
-
-// 		pos_and_rot = get_mount_screw_hole_pos_and_rot(0);
-// 		translate(pos_and_rot[0]) {
-// 			rotate(pos_and_rot[1]) {
-// 				screw_hole(3);
-// 			}
-// 		}
+// // Device holder slider bottom
+// translate([20, 0, 10]) {
+// 	rotate([180, 0, 0]) {
+// 		device_holder_slider_bottom(110, -30);
 // 	}
 // }
 
-module rounded_cube(size, radius) {
-    translate([radius, radius, radius])  // shift to correct position
-        minkowski() {
-            cube([size[0]-2*radius, size[1]-2*radius, size[2]-2*radius]);
-            sphere(r=radius, $fn=50*radius);
-        }
-}
+// // Device holder unit left
+// translate([30, 20, 30]) {
+// 	rotate([90, 0, 0]) {
+// 		device_holder_unit(140, -30, 0, true);
+// 	}
+// }
 
-module rounded_square_wall(pos, size, radius) {
-	translate([pos[0]+radius, pos[1]+radius, pos[2]])
-		linear_extrude(height=size[2]) 
-			minkowski() {
-				square([size[0]-2*radius, size[1]-2*radius]);
-			circle(r=radius, $fn=50);
-		}
-}
+// // Device holder unit right
+// translate([30, 0, -18]) {
+// 	rotate([270, 0, 0]) {
+// 		device_holder_unit(80, -30, 0, false);
+// 	}
+// }
+
+// // Back panel
+// outer_case_back_side(230,0,0); // mind the rounded side!
+// rotate([0, 0, 90]) {
+// 	back_panel_cover(120, -300, 0);
+// }
+
+
 
 module floor() {
 	cube([94,94,3]);
@@ -172,49 +150,9 @@ module floor() {
 	}
 }
 
-// screw_head_offset distance claimed by case or other parts
-module screw_mount_block(wall_thickness=3) {
-	rounding_cutoff = 2;
-
-	block_depth = screw_hole_depth - wall_thickness + rounding_cutoff + 5;
-	translate([0, -rounding_cutoff, -rounding_cutoff]) {
-		difference() {
-			// Mount block
-			rounded_cube([screw_mount_width, block_depth, screw_mount_width], rounding_cutoff);
-			
-			// Rounding cutoff on wall side
-			translate([0, 0, 0]) {
-				cube([screw_mount_width, rounding_cutoff, screw_mount_height]);
-			}
-
-			// Rounding cutoff on bottom for attachment
-			translate([0, 0, 0]) {
-				cube([screw_mount_width, block_depth, rounding_cutoff]);
-			}
-			
-			
-			// Screw hole in block
-			translate([screw_mount_width/2, rounding_cutoff, screw_mount_height/2+rounding_cutoff/2]) {
-				rotate([270, 0, 0]) {
-					screw_hole(screw_hole_depth-wall_thickness);
-				}
-			}			
-		}
-	}
-}
-
-function get_mount_screw_hole_pos_and_rot(wall_thickness=3) = 
-	[
-		[screw_mount_width/2, wall_thickness, screw_mount_height/2-1],
-		[90,90,0]
-	];
 
 
-module screw_hole(depth) {
-	linear_extrude(height=depth) {
-		circle(r=screw_hole_radius, $fn=20);
-	}
-}
+
 
 
 
@@ -249,11 +187,6 @@ module backplate_screw_hole_holder(x, y, z, with_difference_hole=true) {
 	}
 }
 
-module air_vent() {
-	translate([0,0,-2]) {
-		rounded_cube([50, 5, 7], 2);
-	}
-}
 
 // is_true_panel: true: actual panel, false: difference hole
 module back_panel_cover(x, y, z, is_true_panel=true) {
@@ -291,61 +224,36 @@ module back_panel_cover(x, y, z, is_true_panel=true) {
 }
 
 
-module outer_case_without_floor_and_back_side(x, y, z) {
-	translate([x, y, z]) {
-		difference() {
-			rounded_cube([100, 100, 100], 2);
-			translate([3, 3, 3])             // 3mm wall thickness
-				cube([97, 94, 97]);          // inner cavity (leave 3mm bottom)
+module outer_case_without_floor_and_back_side() {
+	
+	// Mount screw hole relative positions
+	screw_hole_pos_and_rot = get_mount_screw_hole_pos_and_rot();
+	shx = screw_hole_pos_and_rot[0][0];
+	shy = screw_hole_pos_and_rot[0][1];
+	shz = screw_hole_pos_and_rot[0][2];
+	shrotx = screw_hole_pos_and_rot[1][0];
+	shroty = screw_hole_pos_and_rot[1][1];
+	shrotz = screw_hole_pos_and_rot[1][2];
+
+	difference() {
+		// Box boxy
+		rounded_cube([100, 100, 100], 2);
+
+		// Inner cavity 3mm wall thickness
+		translate([3, 3, 3])
+			cube([97, 94, 97]);
+
+		// Screw holes right side
+		translate([100-3-shx, shy, 3+10+shz]) {
+			rotate([shrotx, shroty, shrotz]) {
+				screw_hole(3);
+			}
 		}
-	}
-}
-
-// 9.88mm x 4.1mm USB-C port hole - sticks 1.5mm out of board
-module usbc_slot() {
-    linear_extrude(height=3) {
-        hull() {
-            translate([1.5, 1.5]) circle(r=1.5, $fn=32);
-            translate([8.38, 1.5]) circle(r=1.5, $fn=32);
-            translate([8.38, 2.6]) circle(r=1.5, $fn=32);
-            translate([1.5, 2.6]) circle(r=1.5, $fn=32);
-        }
-    }
-}
-
-module usbc_slot_with_holder() {
-    inside_layer_offset = 1.5;
-
-	usbc_slot_inner_padding = 0.5;
-
-
-    board_rest_width = 30;
-    board_rest_height = 2;
-
-    // Board Rest
-    translate([0, board_rest_height + usbc_slot_height/2, inside_layer_offset]) {
-        cube([board_rest_width, usbc_slot_height, inside_layer_offset]);
-    }
-
-	// USBC slot inner padding
-	translate([(board_rest_width - usbc_slot_width)/2 - usbc_slot_inner_padding/2, 0 - usbc_slot_inner_padding/2, inside_layer_offset]) {
-		cube([usbc_slot_width + usbc_slot_inner_padding, usbc_slot_height + usbc_slot_inner_padding, inside_layer_offset]);
+		
 	}
 
-    // USB-C port hole
-    translate([(board_rest_width - usbc_slot_width)/2, 0, 0]) {
-        usbc_slot();
-    }
-
-	// Button padding right
-	translate([board_rest_width/2+usbc_slot_width/2+1.7, 1, inside_layer_offset]) {
-		cube([4, 4, inside_layer_offset]);
-	}
-
-	// Button padding left
-	translate([board_rest_width/2-usbc_slot_width/2-1.7-4, 1, inside_layer_offset]) {
-		cube([4, 4, inside_layer_offset]);
-	}
+	
+	
 }
 
 
@@ -464,4 +372,134 @@ module device_holder_unit(x, y, z, is_left_holder) {
 			}
 		}
 	}
+}
+
+
+module air_vent() {
+	translate([0,0,-2]) {
+		rounded_cube([50, 5, 7], 2);
+	}
+}
+
+// 9.88mm x 4.1mm USB-C port hole - sticks 1.5mm out of board
+module usbc_slot() {
+    linear_extrude(height=3) {
+        hull() {
+            translate([1.5, 1.5]) circle(r=1.5, $fn=32);
+            translate([8.38, 1.5]) circle(r=1.5, $fn=32);
+            translate([8.38, 2.6]) circle(r=1.5, $fn=32);
+            translate([1.5, 2.6]) circle(r=1.5, $fn=32);
+        }
+    }
+}
+
+module usbc_slot_with_holder() {
+    inside_layer_offset = 1.5;
+
+	usbc_slot_inner_padding = 0.5;
+
+
+    board_rest_width = 30;
+    board_rest_height = 2;
+
+    // Board Rest
+    translate([0, board_rest_height + usbc_slot_height/2, inside_layer_offset]) {
+        cube([board_rest_width, usbc_slot_height, inside_layer_offset]);
+    }
+
+	// USBC slot inner padding
+	translate([(board_rest_width - usbc_slot_width)/2 - usbc_slot_inner_padding/2, 0 - usbc_slot_inner_padding/2, inside_layer_offset]) {
+		cube([usbc_slot_width + usbc_slot_inner_padding, usbc_slot_height + usbc_slot_inner_padding, inside_layer_offset]);
+	}
+
+    // USB-C port hole
+    translate([(board_rest_width - usbc_slot_width)/2, 0, 0]) {
+        usbc_slot();
+    }
+
+	// Button padding right
+	translate([board_rest_width/2+usbc_slot_width/2+1.7, 1, inside_layer_offset]) {
+		cube([4, 4, inside_layer_offset]);
+	}
+
+	// Button padding left
+	translate([board_rest_width/2-usbc_slot_width/2-1.7-4, 1, inside_layer_offset]) {
+		cube([4, 4, inside_layer_offset]);
+	}
+}
+
+function get_mount_screw_hole_pos_and_rot(wall_thickness=3) = 
+	[
+		[screw_mount_width/2-1, wall_thickness, screw_mount_height/2],
+		[90,90,0]
+	];
+
+
+// Plain screw hole, definable depth
+module screw_hole(depth) {
+	linear_extrude(height=depth) {
+		circle(r=screw_hole_radius, $fn=20);
+	}
+}
+
+// Screw head hole for outer wall (entrance to screw)
+module screw_head_hole(wall_thickness=3) {
+	translate([0, 0, wall_thickness-screw_head_depth]) {
+		// Head hole
+		linear_extrude(height=screw_head_depth) {
+			circle(r=screw_head_radius, $fn=100);
+		}
+
+	}
+	// wall hole
+	screw_hole(wall_thickness - screw_head_depth);
+}
+
+// screw_head_offset distance claimed by case or other parts
+module screw_mount_block(wall_thickness=3) {
+	rounding_cutoff = 2;
+
+	block_depth = screw_hole_depth - wall_thickness + rounding_cutoff + 5;
+	translate([0, -rounding_cutoff, -rounding_cutoff]) {
+		difference() {
+			// Mount block
+			rounded_cube([screw_mount_width, block_depth, screw_mount_width], rounding_cutoff);
+			
+			// Rounding cutoff on wall side
+			translate([0, 0, 0]) {
+				cube([screw_mount_width, rounding_cutoff, screw_mount_height]);
+			}
+
+			// Rounding cutoff on bottom for attachment
+			translate([0, 0, 0]) {
+				cube([screw_mount_width, block_depth, rounding_cutoff]);
+			}
+			
+			
+			// Screw hole in block
+			translate([screw_mount_width/2, rounding_cutoff, screw_mount_height/2+rounding_cutoff/2]) {
+				rotate([270, 0, 0]) {
+					screw_hole(screw_hole_depth-wall_thickness);
+				}
+			}			
+		}
+	}
+}
+
+
+module rounded_cube(size, radius) {
+    translate([radius, radius, radius])  // shift to correct position
+        minkowski() {
+            cube([size[0]-2*radius, size[1]-2*radius, size[2]-2*radius]);
+            sphere(r=radius, $fn=50*radius);
+        }
+}
+
+module rounded_square_wall(pos, size, radius) {
+	translate([pos[0]+radius, pos[1]+radius, pos[2]])
+		linear_extrude(height=size[2]) 
+			minkowski() {
+				square([size[0]-2*radius, size[1]-2*radius]);
+			circle(r=radius, $fn=50);
+		}
 }
