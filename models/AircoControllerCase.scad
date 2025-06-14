@@ -43,6 +43,14 @@ back_cover_width = 80;
 back_cover_height = 50; // without clips but including cover spacing
 
 
+// Board actual size
+board_width = 28.4;
+board_depth = 51.4; // without usbc overhang
+board_height = 1.5;
+
+// amount the USBC port sticks out of the board
+usbc_port_overhang = 1.5;
+
 
 
 // Case Shell without right side
@@ -472,24 +480,28 @@ module usbc_slot() {
 }
 
 module usbc_slot_with_holder() {
-	// amount the USBC port sticks out of the board
-    usbc_port_overhang = 1.5;
-
 	usbc_slot_inner_padding = 0.5;
 
+    board_rest_width = 30; // board width slot
+    board_rest_height = 2; // board height slot
+	board_rest_depth = wall_thickness - usbc_port_overhang;
+	button_padding_width = 4;
+	button_padding_height = 5;
+	
 
-    board_rest_width = 30;
-    board_rest_height = 2;
 
     // Board Rest
-    translate([0, board_rest_height + usbc_slot_height/2, usbc_port_overhang]) {
-        cube([board_rest_width, usbc_slot_height, usbc_port_overhang]);
+    translate([
+		0, 
+		board_rest_height + usbc_slot_height/2, 
+		usbc_port_overhang
+	]) {
+        cube([
+			board_rest_width, 
+			usbc_slot_height, 
+			wall_thickness-usbc_port_overhang]);
     }
 
-	// USBC slot inner padding
-	translate([(board_rest_width - usbc_slot_width)/2 - usbc_slot_inner_padding/2, 0 - usbc_slot_inner_padding/2, usbc_port_overhang]) {
-		cube([usbc_slot_width + usbc_slot_inner_padding, usbc_slot_height + usbc_slot_inner_padding, usbc_port_overhang]);
-	}
 
     // USB-C port hole
     translate([(board_rest_width - usbc_slot_width)/2, 0, 0]) {
@@ -497,13 +509,19 @@ module usbc_slot_with_holder() {
     }
 
 	// Button padding right
-	translate([board_rest_width/2+usbc_slot_width/2+1.7, 1, usbc_port_overhang]) {
-		cube([4, 4, usbc_port_overhang]);
+	translate([
+		board_rest_width/2+usbc_slot_width/2+1.7, 
+		0, 
+		usbc_port_overhang]) {
+		cube([button_padding_width, button_padding_height, board_rest_depth]);
 	}
 
 	// Button padding left
-	translate([board_rest_width/2-usbc_slot_width/2-1.7-4, 1, usbc_port_overhang]) {
-		cube([4, 4, usbc_port_overhang]);
+	translate([
+		board_rest_width/2-usbc_slot_width/2-1.7-button_padding_width, 
+		0, 
+		usbc_port_overhang]) {
+		cube([button_padding_width, button_padding_height, board_rest_depth]);
 	}
 }
 
