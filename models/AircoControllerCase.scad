@@ -76,7 +76,7 @@ if (IS_PRINT_VIEW) {
 	}
 
 	// case back side
-	translate([0,100+10,100-wall_thickness]) {
+	translate([0,100,100]) {
 		rotate([90, 90, 0]) {
 			outer_case_back_side(); // mind the rounded side!
 		}
@@ -312,17 +312,23 @@ module outer_case_back_side() {
 	// 3mm missing on each side except top side, yet part of the case
 	difference() {
 		rounded_cube([100, 100, 100], 2);
+
+		// inner cavity (leave 3mm bottom and back)
 		translate([0, 0, wall_thickness])
-			cube([100, 100, 100]);       // inner cavity (leave 3mm bottom and back)
+			cube([100, 100, 100]);       
 			
-		translate([0,0,0])				// Cut off left rounded wall
+		// Cut off left rounded wall
+		translate([0,0,0])
 			cube([100, wall_thickness, 100]);
-		translate([0,97,0])				// Cut off right rounded wall
+			
+
+		// Cut off right rounded wall
+		translate([0,100-wall_thickness,0])
 			cube([100, wall_thickness, 100]);
 
-		translate([0,0,97])				// Cut off top rounded wall
-			cube([100, 100, wall_thickness]);
-		translate([97,0,0])				// Cut off front rounded wall
+
+		// Cut off top rounded wall
+		translate([0,0,0])
 			cube([wall_thickness, 100, 100]);
 
 		// Back cover slot
