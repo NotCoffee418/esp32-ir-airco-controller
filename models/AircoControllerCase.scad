@@ -74,6 +74,30 @@ if (IS_PRINT_VIEW) {
 			back_panel_cover();
 		}
 	}
+
+	
+
+	// Device holder slider bottom
+	translate([20+110, 0, 10-30]) {
+		rotate([180, 0, 0]) {
+			device_holder_slider_bottom();
+		}
+	}
+
+	// Device holder unit left
+	translate([30+140, 20-30, 30]) {
+		rotate([90, 0, 0]) {
+			device_holder_unit(true);
+		}
+	}
+
+	// Device holder unit right
+	translate([30+80, 0-30, 0]) {
+		rotate([270, 0, 0]) {
+			device_holder_unit(false);
+		}
+	}
+
 } else {
 	//Outer case without floor and back
 	translate([100, 0, 100]) {
@@ -102,29 +126,13 @@ if (IS_PRINT_VIEW) {
 			back_panel_cover();
 		}
 	}
-}
 
-
-// Device holder slider bottom
-translate([20, 0, 10]) {
-	rotate([180, 0, 0]) {
-		device_holder_slider_bottom(110, -30);
+	// Assembled device holder parts
+	translate([-100,0,0]) {
+		assembled_device_holder();
 	}
 }
 
-// Device holder unit left
-translate([30, 20, 30]) {
-	rotate([90, 0, 0]) {
-		device_holder_unit(140, -30, 0, true);
-	}
-}
-
-// Device holder unit right
-translate([30, 0, -18]) {
-	rotate([270, 0, 0]) {
-		device_holder_unit(80, -30, 0, false);
-	}
-}
 
 
 
@@ -378,8 +386,84 @@ module outer_case_back_side() {
 }
 
 
+module assembled_device_holder(with_board=true) {
+	// Device holder slider bottom
+	translate([0, 0, wall_thickness]) {
+		device_holder_slider_bottom();
+	}
+
+	// Device holder unit left
+	translate([5, 0, wall_thickness]) {
+		device_holder_unit(true);
+	}
+
+	// Device holder unit right
+	translate([5, 20.3, wall_thickness]) {
+		device_holder_unit(false);
+	}
+
+	if (with_board) {
+		translate([10,2,wall_thickness+board_rest_floor_diff+0.1]) {		
+			rotate([0,0,90]) {
+				spoof_board();
+			}
+		}
+	}
+}
+
+module spoof_board() {	
+	usb_holder_slot_width = 30;
+	excess_offset = usb_holder_slot_width - board_width;
+
+	difference() {
+		// Board
+		union() {
+			// Surface
+			rounded_square_wall(
+				[0, 0, 0], 
+				[board_width, board_depth, board_height], 
+				1.5);
+
+			// Copy of USBc slot holder - dont mess with it to fix this, just mess with this arbitrary offset
+			// theoretically it's done by the time this function exists so... should be ok?
+			translate([
+				-(excess_offset/2),
+				board_depth+usbc_port_overhang,
+				-4.1]
+			) {
+				rotate([90,0,0]) {
+					usbc_slot_with_holder();
+				}
+			}
+		}
+		
+		// Remove anything above the surface
+		// 20 is arbitrary
+		translate([-20,-20,board_height]) {
+			cube([board_width+40, board_depth+40, 100]);
+		}
+
+		
+		// Remove stuff on the right
+		translate([-20,0,-20]) {
+			cube([20, board_depth, 100]);
+		}
+
+		// Remove stuff on the left
+		translate([board_width,-20,-20]) {
+			cube([20, board_depth+40, 100]);
+		}
+
+	}
+		
+	
+	
+	
+}
+
+
 // Bars attached to the floor of the case for sliding in the device holder
-module device_holder_slider_bottom(x, y) {
+module device_holder_slider_bottom() {
 	// Configuration
 	// Board size + excess space on holder slot (2mm each side)
 	// 28.3 + 2 + 2 = 32.3
@@ -391,17 +475,15 @@ module device_holder_slider_bottom(x, y) {
 	union() {
 		// Left bar
 		// X 0 to 7.5
-		translate([x, y, 0]) {
-			difference() {
-				rounded_cube([7.5-slide_clearance, depth, 10], 0.2);
-				translate([5-slide_clearance, -rounding_cutoff, 0-rounding_cutoff])
-					rounded_cube([2.5+slide_clearance+rounding_cutoff, depth+rounding_cutoff*2, 5+slide_clearance+rounding_cutoff], 0.2);
-			}
+		difference() {
+			rounded_cube([7.5-slide_clearance, depth, 10], 0.2);
+			translate([5-slide_clearance, -rounding_cutoff, 0-rounding_cutoff])
+				rounded_cube([2.5+slide_clearance+rounding_cutoff, depth+rounding_cutoff*2, 5+slide_clearance+rounding_cutoff], 0.2);
 		}
 
 		// Right bar
 		// X 12.5 to 20
-		translate([x+12.5+slide_clearance*2, y, 0]) {
+		translate([12.5+slide_clearance*2, 0, 0]) {
 			difference() {
 				rounded_cube([7.5-slide_clearance, depth, 10], 0.2);
 				translate([-rounding_cutoff, -rounding_cutoff , 0-rounding_cutoff])
@@ -411,7 +493,7 @@ module device_holder_slider_bottom(x, y) {
 
 		// Center block
 		block_size = depth-single_slot_depth*2;
-		translate([x, y+single_slot_depth, 0]) {
+		translate([0, single_slot_depth, 0]) {
 			rounded_cube([20+slide_clearance, block_size, 10], 0.2);
 		}
 	}
@@ -419,7 +501,7 @@ module device_holder_slider_bottom(x, y) {
 
 // Device holder unit - loose prints or with support
 // is_left_holder either left holder or right holder
-module device_holder_unit(x, y, z, is_left_holder) {
+module device_holder_unit(is_left_holder) {
 	single_slot_depth = 12;
 	slide_clearance = 0.05;
 	rounding_cutoff = 1;
@@ -427,19 +509,18 @@ module device_holder_unit(x, y, z, is_left_holder) {
 
 	union() {
 		// Bottom slide block
-		translate([x, y, z]) {
-			rounded_cube([10, single_slot_depth, 5-slide_clearance], 0.2);
-		}
+		rounded_cube([10, single_slot_depth, 5-slide_clearance], 0.2);
+		
 		// Middle slide block
-		translate([x+2.5+slide_clearance, y, z+5-slide_clearance-1]) {
-			rounded_cube([5-slide_clearance, single_slot_depth, 5 + slide_clearance], 0.2); // Arbitrary height for slide access without breaking risk
+		translate([2.5+slide_clearance, 0, 5-slide_clearance-1]) {
+			rounded_cube([5-slide_clearance, single_slot_depth, 6], 0.2); // Arbitrary height for slide access without breaking risk
 		}
 
 		// Total height for slide system without beams is now 15mm from case floor
 
 		// Holder support beam 3mm  on either side of device free
 		if (is_left_holder) {
-			translate([x+2.5+slide_clearance,y,z]) {
+			translate([2.5+slide_clearance,0,0]) {
 				difference() {
 					rounded_cube([5-slide_clearance, 5, board_rest_floor_diff+5], 0.2);
 					translate([-rounding_cutoff, 3-rounding_cutoff, board_rest_floor_diff]) {
@@ -448,7 +529,7 @@ module device_holder_unit(x, y, z, is_left_holder) {
 				}
 			}
 		} else {
-			translate([x+2.5+slide_clearance,y+single_slot_depth-5,z]) {
+			translate([2.5+slide_clearance,single_slot_depth-5,0]) {
 				difference() {
 					rounded_cube([5-slide_clearance, 5, board_rest_floor_diff+5], 0.2);
 					translate([-rounding_cutoff, -rounding_cutoff, board_rest_floor_diff]) {
