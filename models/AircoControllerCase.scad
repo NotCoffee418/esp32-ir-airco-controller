@@ -10,7 +10,7 @@
 
 
 // variable to toggle between printable rotations and visual representation for braining
-IS_PRINT_VIEW = false;
+IS_ASSEMBLED_VIEW = false;
 
 // beginning of board rest levels relative to case floor
 board_rest_floor_diff = 20;
@@ -52,9 +52,13 @@ board_height = 1.5;
 usbc_port_overhang = 1.5;
 
 
+// How deep does the device holder slide?
+device_holder_single_slot_depth = 12;
+
+
 
 // Case Shell without right side
-if (IS_PRINT_VIEW) {
+if (!IS_ASSEMBLED_VIEW) {
 	// Outer case without floor and back
 	outer_case_without_floor_and_back_side();
 	
@@ -75,26 +79,24 @@ if (IS_PRINT_VIEW) {
 		}
 	}
 
-	
+	// Device holder unit right
+	translate([110, 0-30, device_holder_single_slot_depth]) {
+		rotate([270, 0, 0]) {
+			device_holder_unit(false);
+		}
+	}
 
 	// Device holder slider bottom
-	translate([20+110, 0, 10-30]) {
+	translate([130, 0, 10]) {
 		rotate([180, 0, 0]) {
 			device_holder_slider_bottom();
 		}
 	}
 
 	// Device holder unit left
-	translate([30+140, 20-30, 30]) {
+	translate([160, 20-30, 0]) {
 		rotate([90, 0, 0]) {
 			device_holder_unit(true);
-		}
-	}
-
-	// Device holder unit right
-	translate([30+80, 0-30, 0]) {
-		rotate([270, 0, 0]) {
-			device_holder_unit(false);
 		}
 	}
 
@@ -501,18 +503,17 @@ module device_holder_slider_bottom() {
 // Device holder unit - loose prints or with support
 // is_left_holder either left holder or right holder
 module device_holder_unit(is_left_holder) {
-	single_slot_depth = 12;
 	slide_clearance = 0.05;
 	rounding_cutoff = 1;
 
 
 	union() {
 		// Bottom slide block
-		rounded_cube([10, single_slot_depth, 5-slide_clearance], 0.2);
+		rounded_cube([10, device_holder_single_slot_depth, 5-slide_clearance], 0.2);
 		
 		// Middle slide block
 		translate([2.5+slide_clearance, 0, 5-slide_clearance-1]) {
-			rounded_cube([5-slide_clearance, single_slot_depth, 6], 0.2); // Arbitrary height for slide access without breaking risk
+			rounded_cube([5-slide_clearance, device_holder_single_slot_depth, 6], 0.2); // Arbitrary height for slide access without breaking risk
 		}
 
 		// Total height for slide system without beams is now 15mm from case floor
@@ -528,7 +529,7 @@ module device_holder_unit(is_left_holder) {
 				}
 			}
 		} else {
-			translate([2.5+slide_clearance,single_slot_depth-5,0]) {
+			translate([2.5+slide_clearance,device_holder_single_slot_depth-5,0]) {
 				difference() {
 					rounded_cube([5-slide_clearance, 5, board_rest_floor_diff+5], 0.2);
 					translate([-rounding_cutoff, -rounding_cutoff, board_rest_floor_diff]) {
