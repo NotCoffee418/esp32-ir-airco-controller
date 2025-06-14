@@ -10,7 +10,7 @@
 
 
 // variable to toggle between printable rotations and visual representation for braining
-IS_ASSEMBLED_VIEW = false;
+IS_ASSEMBLED_VIEW = true;
 
 // beginning of board rest levels relative to case floor
 board_rest_floor_diff = 20;
@@ -100,7 +100,7 @@ if (!IS_ASSEMBLED_VIEW) {
 		}
 	}
 
-} else {
+} else { // Assembled view
 	//Outer case without floor and back
 	translate([100, 0, 100]) {
 		rotate([0, 90, 90]) { 
@@ -496,6 +496,28 @@ module device_holder_slider_bottom() {
 		block_size = depth-single_slot_depth*2;
 		translate([0, single_slot_depth, 0]) {
 			rounded_cube([20+slide_clearance, block_size, 10], 0.2);
+		}
+
+		// Screw Block 1
+		translate([
+			rounding_cutoff, // slightly go into the bar
+			depth/2+screw_mount_width/2, // center of the bar
+			0]
+		) {
+			rotate([90,0,270]) {
+				screw_mount_block(true);
+			}
+		}
+
+		// Screw Block 2
+		translate([
+			20-rounding_cutoff,
+			depth/2-(screw_mount_width/2),
+			0]
+		) {
+			rotate([90,0,90]) {
+				screw_mount_block(true);
+			}
 		}
 	}
 }
