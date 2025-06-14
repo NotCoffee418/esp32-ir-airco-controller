@@ -127,14 +127,13 @@ if (IS_PRINT_VIEW) {
 		}
 	}
 
-	// Assembled device holder parts
-	translate([-100,0,0]) {
-		assembled_device_holder();
+	// Assembled device holder and spoof board
+	translate([34.92,57.1,0]) {
+		rotate([0,0,270]) {
+			assembled_device_holder(true);
+		}		
 	}
 }
-
-
-
 
 
 
@@ -684,4 +683,32 @@ module rounded_square_wall(pos, size, radius) {
 				square([size[0]-2*radius, size[1]-2*radius]);
 			circle(r=radius, $fn=50);
 		}
+}
+
+
+
+// test print pieces (test_slot_fitting_print.stl)
+module test_print_pieces() {
+	difference() {
+		// Board holder
+		cube([30,40,wall_thickness]);	
+
+		// Clip holder
+		translate([5,35,0]) {
+			rotate([0,0,270]) {
+				usbc_slot_with_holder();
+			}
+		}
+
+
+		// Clip slot
+		rotate([180,0,90]) {
+				backplate_screw_hole_holder(5, 20, -wall_thickness, false);
+		}
+	}
+
+	// Clip
+	rotate([0,0,90]) {
+		backplate_screw_hole_holder(25, -50, 0, true);
+	}
 }
