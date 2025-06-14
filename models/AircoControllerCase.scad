@@ -26,7 +26,7 @@ union() {
 	}
 
 	// Device holder unit right
-	translate([30, 0, -15]) {
+	translate([30, 0, -18]) {
 		rotate([270, 0, 0]) {
 			device_holder_unit(80, -30, 0, false);
 		}
@@ -75,7 +75,7 @@ module screw_hole_holder(x, y, z, with_difference_hole=true) {
 		linear_extrude(height=1.5) { 
 			difference() {
 				union() {
-					square([8, 5]); // Attahment clip square part
+					square([8, 5.5]); // Attahment clip square part
 					translate([4, 0, 0]) // Attachment clip round part
 						circle(r=4, $fn=100);
 
@@ -235,9 +235,10 @@ module outer_case_back_side(x, y, z) {
 // Bars attached to the floor of the case for sliding in the device holder
 module device_holder_slider_bottom(x, y) {
 	// Configuration
-	// 28.3 + 3 + 3 = 34.3
-	depth = 34.3;
-	single_slot_depth = 15;
+	// Board size + excess space on holder slot (2mm each side)
+	// 28.3 + 2 + 2 = 32.3
+	depth = 32.3;
+	single_slot_depth = 12;
 	slide_clearance = 0.05; // on this side of the slider, total is *2
 	rounding_cutoff = 1;
 
@@ -247,8 +248,8 @@ module device_holder_slider_bottom(x, y) {
 		translate([x, y, 0]) {
 			difference() {
 				rounded_cube([7.5-slide_clearance, depth, 10], 0.2);
-				translate([5-slide_clearance, 0-rounding_cutoff, 0-rounding_cutoff])
-					rounded_cube([2.5+slide_clearance+rounding_cutoff, depth+rounding_cutoff, 5+slide_clearance+rounding_cutoff], 0.2);
+				translate([5-slide_clearance, -rounding_cutoff, 0-rounding_cutoff])
+					rounded_cube([2.5+slide_clearance+rounding_cutoff, depth+rounding_cutoff*2, 5+slide_clearance+rounding_cutoff], 0.2);
 			}
 		}
 
@@ -257,8 +258,8 @@ module device_holder_slider_bottom(x, y) {
 		translate([x+12.5+slide_clearance*2, y, 0]) {
 			difference() {
 				rounded_cube([7.5-slide_clearance, depth, 10], 0.2);
-				translate([-rounding_cutoff,-rounding_cutoff,-rounding_cutoff])
-					rounded_cube([2.5+slide_clearance+rounding_cutoff, depth+rounding_cutoff, 5+slide_clearance+rounding_cutoff], 0.2);
+				translate([-rounding_cutoff, -rounding_cutoff , 0-rounding_cutoff])
+					rounded_cube([2.5+slide_clearance+rounding_cutoff, depth+rounding_cutoff*2, 5+slide_clearance+rounding_cutoff], 0.2);
 			}
 		}
 
@@ -273,9 +274,8 @@ module device_holder_slider_bottom(x, y) {
 // Device holder unit - loose prints or with support
 // is_left_holder either left holder or right holder
 module device_holder_unit(x, y, z, is_left_holder) {
-	single_slot_depth = 15;
+	single_slot_depth = 12;
 	slide_clearance = 0.05;
-	device_grip_height = 30; // Bare minimum 20mm
 	rounding_cutoff = 1;
 
 
@@ -304,7 +304,7 @@ module device_holder_unit(x, y, z, is_left_holder) {
 		} else {
 			translate([x+2.5+slide_clearance,y+single_slot_depth-5,z]) {
 				difference() {
-					rounded_cube([5, 5, board_rest_floor_diff+5], 0.2);
+					rounded_cube([5-slide_clearance, 5, board_rest_floor_diff+5], 0.2);
 					translate([-rounding_cutoff, -rounding_cutoff, board_rest_floor_diff]) {
 						rounded_cube([3+rounding_cutoff, 3+rounding_cutoff, 2], 0.2);
 					}
