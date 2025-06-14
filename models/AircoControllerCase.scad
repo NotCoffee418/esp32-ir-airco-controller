@@ -49,53 +49,72 @@ if (IS_PRINT_VIEW) {
 	// Floor
 	translate([120, 50, 0]) {
 		floor();
-	}	
+	}
+
+	// case back side
+	translate([230,0,0]) {
+		outer_case_back_side(); // mind the rounded side!
+	}
+
+	// Case removable back cover
+	translate([320, 120, 0]) {
+		rotate([0, 0, 90]) {
+			back_panel_cover();
+		}
+	}
 } else {
-	// //Outer case without floor and back
-	// translate([100, 0, 100]) {
-	// 	rotate([0, 90, 90]) { 
-	// 		outer_case_without_floor_and_back_side();
-	// 	}
-	// }
+	//Outer case without floor and back
+	translate([100, 0, 100]) {
+		rotate([0, 90, 90]) { 
+			outer_case_without_floor_and_back_side();
+		}
+	}
 
 	// Floor
 	translate([wall_thickness , wall_thickness, 0]) {
 		floor();
-	}	
-	translate([wall_thickness+100-10 , wall_thickness, 0]) {
-		// rotate([0, 0, 90]) {			
-		// 	floor();
-		// }
-	}	
+	}
+
+	// case back side
+	translate([0,100+10,100-wall_thickness]) {
+		rotate([90, 90, 0]) {
+			outer_case_back_side(); // mind the rounded side!
+		}
+	}
+
+
+	
+	// Case removable back cover
+	translate([320, 120, 0]) {
+		rotate([0, 0, 90]) {
+			back_panel_cover();
+		}
+	}
 }
 
 
-// // Device holder slider bottom
-// translate([20, 0, 10]) {
-// 	rotate([180, 0, 0]) {
-// 		device_holder_slider_bottom(110, -30);
-// 	}
-// }
+// Device holder slider bottom
+translate([20, 0, 10]) {
+	rotate([180, 0, 0]) {
+		device_holder_slider_bottom(110, -30);
+	}
+}
 
-// // Device holder unit left
-// translate([30, 20, 30]) {
-// 	rotate([90, 0, 0]) {
-// 		device_holder_unit(140, -30, 0, true);
-// 	}
-// }
+// Device holder unit left
+translate([30, 20, 30]) {
+	rotate([90, 0, 0]) {
+		device_holder_unit(140, -30, 0, true);
+	}
+}
 
-// // Device holder unit right
-// translate([30, 0, -18]) {
-// 	rotate([270, 0, 0]) {
-// 		device_holder_unit(80, -30, 0, false);
-// 	}
-// }
+// Device holder unit right
+translate([30, 0, -18]) {
+	rotate([270, 0, 0]) {
+		device_holder_unit(80, -30, 0, false);
+	}
+}
 
-// // Back panel
-// outer_case_back_side(230,0,0); // mind the rounded side!
-// rotate([0, 0, 90]) {
-// 	back_panel_cover(120, -300, 0);
-// }
+
 
 
 
@@ -194,37 +213,35 @@ module backplate_screw_hole_holder(x, y, z, with_difference_hole=true) {
 
 
 // is_true_panel: true: actual panel, false: difference hole
-module back_panel_cover(x, y, z, is_true_panel=true) {
-	translate([x, y, z]) {
-		difference() {
-			// Back cover panel
+module back_panel_cover(is_true_panel=true) {
+	difference() {
+		// Back cover panel
+		union() {
+			rounded_square_wall([0, 0, 0], [80, 50,1.5], 1.5); // bot layer
+			rounded_square_wall([wall_thickness, wall_thickness, 1.5], [74, 44,1.5], 1.5); // top layer
+			backplate_screw_hole_holder(10, -10, 0, is_true_panel);
+			backplate_screw_hole_holder(62, -10, 0, is_true_panel);
+			translate([80, 60, 0]) {
+				rotate([0, 0, 180]) {
+					backplate_screw_hole_holder(10, 0, 0, is_true_panel);
+					backplate_screw_hole_holder(62, 0, 0, is_true_panel);
+				}
+			}
+		}
+		// Air vents
+		if (is_true_panel) {
 			union() {
-				rounded_square_wall([0, 0, 0], [80, 50,1.5], 1.5); // bot layer
-				rounded_square_wall([3, 3, 1.5], [74, 44,1.5], 1.5); // top layer
-				backplate_screw_hole_holder(10, -10, 0, is_true_panel);
-				backplate_screw_hole_holder(62, -10, 0, is_true_panel);
-				translate([80, 60, 0]) {
-					rotate([0, 0, 180]) {
-						backplate_screw_hole_holder(10, 0, 0, is_true_panel);
-						backplate_screw_hole_holder(62, 0, 0, is_true_panel);
-					}
+				translate([15,11.5,0]) {
+					air_vent();
+				}
+				translate([15,22.5,0]) {
+					air_vent();
+				}
+				translate([15,33.5,0]) {
+					air_vent();
 				}
 			}
-			// Air cents
-			if (is_true_panel) {
-				union() {
-					translate([15,11.5,0]) {
-						air_vent();
-					}
-					translate([15,22.5,0]) {
-						air_vent();
-					}
-					translate([15,33.5,0]) {
-						air_vent();
-					}
-				}
-			}
-		}		
+		}
 	}
 }
 
@@ -242,6 +259,9 @@ module outer_case_without_floor_and_back_side() {
 
 	center = 100 / 2;
 
+	// why 1? no clue, but it works.
+	screw_pos_center_offset = 25 + 1;
+
 	difference() {
 		// Box boxy
 		rounded_cube([100, 100, 100], 2);
@@ -250,29 +270,30 @@ module outer_case_without_floor_and_back_side() {
 		translate([wall_thickness, wall_thickness, wall_thickness])
 			cube([100-wall_thickness, 100-wall_thickness*2, 100-wall_thickness]);
 
+
 		// Screw holes right side (front sided)
-		translate([100-wall_thickness-shx, shy, center-25-shz]) {
+		translate([100-wall_thickness-shx, shy, center-screw_pos_center_offset]) {
 			rotate([shrotx, shroty, shrotz]) {
 				screw_head_hole();
 			}
 		}
 
 		// Screw holes right side (back sided)
-		translate([100-wall_thickness-shx, shy, center+25+shz]) {
+		translate([100-wall_thickness-shx, shy, center+screw_pos_center_offset]) {
 			rotate([shrotx, shroty, shrotz]) {
 				screw_head_hole();
 			}
 		}
 
 		// Screw holes left side (front sided)
-		translate([100-wall_thickness-shx, 100-shy, center-25-shz]) {
+		translate([100-wall_thickness-shx, 100-shy, center-screw_pos_center_offset]) {
 			rotate([shrotx+180, shroty, shrotz]) {
 				screw_head_hole();
 			}
 		}
 
 		// Screw holes left side (back sided)
-		translate([100-wall_thickness-shx, 100-shy, center+25+shz]) {
+		translate([100-wall_thickness-shx, 100-shy, center+screw_pos_center_offset]) {
 			rotate([shrotx+180, shroty, shrotz]) {
 				screw_head_hole();
 			}
@@ -287,35 +308,35 @@ module outer_case_without_floor_and_back_side() {
 }
 
 
-module outer_case_back_side(x, y, z) {
+module outer_case_back_side() {
 	// 3mm missing on each side except top side, yet part of the case
-	translate([x, y, z]) {
-		difference() {
-			rounded_cube([100, 100, 100], 2);
-			translate([0, 0, 3])             // 3mm wall thickness
-				cube([100, 100, 100]);       // inner cavity (leave 3mm bottom and back)
-			translate([0,0,0])				// Cut off left rounded wall
-				cube([100, 3, 100]);
-			translate([0,97,0])				// Cut off right rounded wall
-				cube([100, 3, 100]);
+	difference() {
+		rounded_cube([100, 100, 100], 2);
+		translate([0, 0, wall_thickness])
+			cube([100, 100, 100]);       // inner cavity (leave 3mm bottom and back)
+			
+		translate([0,0,0])				// Cut off left rounded wall
+			cube([100, wall_thickness, 100]);
+		translate([0,97,0])				// Cut off right rounded wall
+			cube([100, wall_thickness, 100]);
 
-			translate([0,0,97])				// Cut off top rounded wall
-				cube([100, 100, 3]);
-			translate([97,0,0])				// Cut off front rounded wall
-				cube([3, 100, 100]);
+		translate([0,0,97])				// Cut off top rounded wall
+			cube([100, 100, wall_thickness]);
+		translate([97,0,0])				// Cut off front rounded wall
+			cube([wall_thickness, 100, 100]);
 
-			// Back cover slot
-			translate([65,3+94-80-7,0]) {
-				rotate([0, 0, 90]) {
-					back_panel_cover(-0, 0, 0, false);
-				}
+		// Back cover slot
+		// id center check this/...... TODO
+		translate([65,wall_thickness+100-wall_thickness*2-80-7,0]) {
+			rotate([0, 0, 90]) {
+				back_panel_cover(false);
 			}
+		}
 
-			// USB-C slot
-			translate([3+94-board_rest_floor_diff + 4.1, 3+94/2-30/2 ,0]) {
-				rotate([0, 0, 90]) {
-					usbc_slot_with_holder();
-				}
+		// USB-C slot
+		translate([wall_thickness+94-board_rest_floor_diff + 4.1, 3+94/2-30/2 ,0]) {
+			rotate([0, 0, 90]) {
+				usbc_slot_with_holder();
 			}
 		}
 	}
