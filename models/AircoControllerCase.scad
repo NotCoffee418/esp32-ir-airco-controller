@@ -15,13 +15,15 @@ IS_PRINT_VIEW = false;
 // beginning of board rest levels relative to case floor
 board_rest_floor_diff = 20;
 
+// Wall thickness (careful changing this)
+wall_thickness = 4;
 
 // USB slot hole size
 usbc_slot_width = 9.88;
 usbc_slot_height = 4.1;
 
 // Screw hole size (for 6.5mm x 2.2mm with head 1.5)
-screw_hole_depth = 6.5;
+screw_hole_depth = 7;
 screw_head_depth = 1.8;
 screw_head_radius = 4.4 / 2; // with 0.4 spacing
 screw_hole_radius = 1.9 / 2;
@@ -31,7 +33,10 @@ screw_hole_radius = 1.9 / 2;
 screw_mount_width = 10;
 screw_mount_height = 10;
 
-
+// 0 is valid, just leaves hole in the back and screw may poke out slighly.
+// change freely but be careful of overlapping with other parts.
+// 0 is good for checking if hole is positioned right and avoiding weird print issues at angles.
+mount_block_back_padding = 0;
 
 
 
@@ -46,16 +51,21 @@ if (IS_PRINT_VIEW) {
 		floor();
 	}	
 } else {
-	// Outer case without floor and back
-	translate([100, 0, 100]) {
-		rotate([0, 90, 90]) { 
-			outer_case_without_floor_and_back_side();
-		}
-	}
+	// //Outer case without floor and back
+	// translate([100, 0, 100]) {
+	// 	rotate([0, 90, 90]) { 
+	// 		outer_case_without_floor_and_back_side();
+	// 	}
+	// }
 
 	// Floor
-	translate([3 , 3, 0]) {
+	translate([wall_thickness , wall_thickness, 0]) {
 		floor();
+	}	
+	translate([wall_thickness+100-10 , wall_thickness, 0]) {
+		// rotate([0, 0, 90]) {			
+		// 	floor();
+		// }
 	}	
 }
 
@@ -90,64 +100,59 @@ if (IS_PRINT_VIEW) {
 
 
 module floor() {
-	cube([94,94,3]);
+	center = 100 / 2;
 
-	// Mount blocks sides (closer to front)
-	translate([94, 0, 3]) {
+	// Distance from center of case to mount block
+	// 0 should be center, 50 should just outside of case
+	// this is reference for correct case holes.
+	center_offset_pos = 25;
+	
+	// Floor
+	cube([100-wall_thickness*2,100-wall_thickness*2,wall_thickness]);
+
+	// Mount block - right frontish
+	translate([100-wall_thickness*2, center-center_offset_pos - screw_mount_width, wall_thickness]) {
 		rotate([0, 0, 90]) {
-			union() {
-				// mount block left side
-				translate([10, 0, 0]) {
-					screw_mount_block(3 - screw_head_depth);
-				}
-
-				// mount block right side
-				translate([20, 94, 0]) {
-					rotate([0, 0, 180]) {
-						// mount block left back
-							screw_mount_block(3- screw_head_depth);
-					}
-				}
-			}
+			screw_mount_block();
 		}
 	}
 
-	// Mount blocks sides (closer to back)
-	translate([94, 64, 3]) {
+	// Mount block - right side backish
+	translate([100-wall_thickness*2, center+center_offset_pos-screw_mount_width+wall_thickness/2, wall_thickness]) {
 		rotate([0, 0, 90]) {
-			union() {
-				// mount block left side
-				translate([10, 0, 0]) {
-					screw_mount_block(3 - screw_head_depth);
-				}
-
-				// mount block right side
-				translate([20, 94, 0]) {
-					rotate([0, 0, 180]) {
-						// mount block left back
-							screw_mount_block(3- screw_head_depth);
-					}
-				}
-			}
+			screw_mount_block();
 		}
 	}
 
-	// Mount blocks back side
-	translate([94, 94, 3]) {
+	// Mount block - left side frontish
+	translate([0, center - center_offset_pos, wall_thickness]) {
+		rotate([0, 0, 270]) {
+			screw_mount_block();
+		}
+	}
+
+
+	// Mount block - left side backish
+	translate([0, center + center_offset_pos + wall_thickness/2, wall_thickness]) {
+		rotate([0, 0, 270]) {
+			screw_mount_block();
+		}
+	}
+
+	// Mount block - back side rightish
+	translate([center-center_offset_pos, 100-wall_thickness*2, wall_thickness]) {
 		rotate([0, 0, 180]) {
-			union() {
-				// mount block left side
-				translate([10, 0, 0]) {
-					screw_mount_block(3 - screw_head_depth);
-				}
-
-				// mount block left side
-				translate([74, 0, 0]) {
-					screw_mount_block(3 - screw_head_depth);
-				}
-			}
+			screw_mount_block();
 		}
 	}
+
+	// Mount block - back side left
+	translate([center+center_offset_pos+wall_thickness/2, 100-wall_thickness*2, wall_thickness]) {
+		rotate([0, 0, 180]) {
+			screw_mount_block();
+		}
+	}
+
 }
 
 
@@ -235,32 +240,41 @@ module outer_case_without_floor_and_back_side() {
 	shroty = screw_hole_pos_and_rot[1][1];
 	shrotz = screw_hole_pos_and_rot[1][2];
 
+	center = 100 / 2;
+
 	difference() {
 		// Box boxy
 		rounded_cube([100, 100, 100], 2);
 
 		// Inner cavity 3mm wall thickness
-		translate([3, 3, 3])
-			cube([97, 94, 97]);
+		translate([wall_thickness, wall_thickness, wall_thickness])
+			cube([100-wall_thickness, 100-wall_thickness*2, 100-wall_thickness]);
 
 		// Screw holes right side (front sided)
-		translate([100-3-shx, shy, 3+10+shz]) {
+		translate([100-wall_thickness-shx, shy, center-25-shz]) {
 			rotate([shrotx, shroty, shrotz]) {
-				screw_head_hole(3);
+				screw_head_hole();
 			}
 		}
 
 		// Screw holes right side (back sided)
-		translate([100-3-shx, shy, 3+74+shz]) {
+		translate([100-wall_thickness-shx, shy, center+25+shz]) {
 			rotate([shrotx, shroty, shrotz]) {
-				screw_head_hole(3);
+				screw_head_hole();
 			}
 		}
 
 		// Screw holes left side (front sided)
-		translate([100-3-shx, 100-shy, 3+10+shz]) {
+		translate([100-wall_thickness-shx, 100-shy, center-25-shz]) {
 			rotate([shrotx+180, shroty, shrotz]) {
-				screw_head_hole(3);
+				screw_head_hole();
+			}
+		}
+
+		// Screw holes left side (back sided)
+		translate([100-wall_thickness-shx, 100-shy, center+25+shz]) {
+			rotate([shrotx+180, shroty, shrotz]) {
+				screw_head_hole();
 			}
 		}
 		
@@ -444,9 +458,9 @@ module usbc_slot_with_holder() {
 	}
 }
 
-function get_mount_screw_head_hole_pos_and_rot(wall_thickness=3) = 
+function get_mount_screw_head_hole_pos_and_rot() = 
 	[
-		[screw_mount_width/2-1, wall_thickness, screw_mount_height/2],
+		[screw_mount_width/2-0.5, wall_thickness, screw_mount_height/2],
 		[90,90,0]
 	];
 
@@ -459,7 +473,7 @@ module screw_hole(depth) {
 }
 
 // Screw head hole for outer wall (entrance to screw)
-module screw_head_hole(wall_thickness=3) {
+module screw_head_hole() {
 	translate([0, 0, wall_thickness-screw_head_depth]) {
 		// Head hole
 		linear_extrude(height=screw_head_depth) {
@@ -472,10 +486,14 @@ module screw_head_hole(wall_thickness=3) {
 }
 
 // screw_head_offset distance claimed by case or other parts
-module screw_mount_block(wall_thickness=3, is_head_in_wall=true) {
-	rounding_cutoff = 2;
+module screw_mount_block(is_head_in_wall=true) {
+	rounding_cutoff = 1;
+	
+
 	included_head_depth = is_head_in_wall ? screw_head_depth : 0;
-	block_depth = screw_hole_depth - wall_thickness + rounding_cutoff + 3 + included_head_depth;
+	mount_hole_depth = screw_hole_depth - wall_thickness + included_head_depth;
+	block_depth = mount_hole_depth + rounding_cutoff + mount_block_back_padding;
+	
 	translate([0, -rounding_cutoff, -rounding_cutoff]) {
 		difference() {
 			// Mount block
@@ -495,7 +513,7 @@ module screw_mount_block(wall_thickness=3, is_head_in_wall=true) {
 			// Screw hole in block
 			translate([screw_mount_width/2, rounding_cutoff, screw_mount_height/2+rounding_cutoff/2]) {
 				rotate([270, 0, 0]) {
-					screw_hole(screw_hole_depth-wall_thickness+included_head_depth);
+					screw_hole(mount_hole_depth);
 				}
 			}			
 		}
