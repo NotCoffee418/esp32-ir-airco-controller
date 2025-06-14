@@ -8,6 +8,10 @@
 // - temperature sensor hole
 // - against my better judgement, LCD for temp/status? https://www.gotron.be/0-96-oled-display-met-i2c-voor-arduino.html 
 
+
+// variable to toggle between printable rotations and visual representation for braining
+IS_PRINT_VIEW = false;
+
 // beginning of board rest levels relative to case floor
 board_rest_floor_diff = 20;
 
@@ -22,11 +26,26 @@ screw_head_depth = 1.8;
 screw_hole_radius = 1.9 / 2;
 
 
+// Mount block sizes
+screw_mount_width = 10;
+screw_mount_height = 10;
+
+
 // Case Shell without right side
 translate([0, 0, 0])
 union() {
-	outer_case_without_left_and_back_side(0,0,0);
-
+	// print view (USE THIS ONE!)
+	if (IS_PRINT_VIEW) {
+		outer_case_without_floor_and_back_side(0,0,0);
+	} else {
+		translate([0, 0, 100]) {
+			rotate([0, 90, 90]) { 
+				outer_case_without_floor_and_back_side(0,0,0);
+			}
+		}
+	}
+	
+	
 	// Device holder slider bottom
 	translate([20, 0, 10]) {
 		rotate([180, 0, 0]) {
@@ -57,8 +76,23 @@ union() {
 	// Floor
 	translate([120, 50, 0]) {
 		floor();
-	}
+	}	
 }
+
+
+// Test screw mount piece (deleteme)
+// translate([-10, 0, 0]) {
+// 	rotate([0, 0, 0]) {
+// 		screw_mount_block(0);
+
+// 		pos_and_rot = get_mount_screw_hole_pos_and_rot(0);
+// 		translate(pos_and_rot[0]) {
+// 			rotate(pos_and_rot[1]) {
+// 				screw_hole(3);
+// 			}
+// 		}
+// 	}
+// }
 
 module rounded_cube(size, radius) {
     translate([radius, radius, radius])  // shift to correct position
@@ -79,16 +113,109 @@ module rounded_square_wall(pos, size, radius) {
 
 module floor() {
 	cube([94,94,3]);
+
+	// Mount blocks sides (closer to front)
+	translate([94, 0, 3]) {
+		rotate([0, 0, 90]) {
+			union() {
+				// mount block left side
+				translate([10, 0, 0]) {
+					screw_mount_block(3 - screw_head_depth);
+				}
+
+				// mount block right side
+				translate([20, 94, 0]) {
+					rotate([0, 0, 180]) {
+						// mount block left back
+							screw_mount_block(3- screw_head_depth);
+					}
+				}
+			}
+		}
+	}
+
+	// Mount blocks sides (closer to back)
+	translate([94, 64, 3]) {
+		rotate([0, 0, 90]) {
+			union() {
+				// mount block left side
+				translate([10, 0, 0]) {
+					screw_mount_block(3 - screw_head_depth);
+				}
+
+				// mount block right side
+				translate([20, 94, 0]) {
+					rotate([0, 0, 180]) {
+						// mount block left back
+							screw_mount_block(3- screw_head_depth);
+					}
+				}
+			}
+		}
+	}
+
+	// Mount blocks back side
+	translate([94, 94, 3]) {
+		rotate([0, 0, 180]) {
+			union() {
+				// mount block left side
+				translate([10, 0, 0]) {
+					screw_mount_block(3 - screw_head_depth);
+				}
+
+				// mount block left side
+				translate([74, 0, 0]) {
+					screw_mount_block(3 - screw_head_depth);
+				}
+			}
+		}
+	}
 }
 
-//wip
-module screw_mount_block() {
-	cube([10, 10, 10]);
+// screw_head_offset distance claimed by case or other parts
+module screw_mount_block(wall_thickness=3) {
+	rounding_cutoff = 2;
+
+	block_depth = screw_hole_depth - wall_thickness + rounding_cutoff + 5;
+	translate([0, -rounding_cutoff, -rounding_cutoff]) {
+		difference() {
+			// Mount block
+			rounded_cube([screw_mount_width, block_depth, screw_mount_width], rounding_cutoff);
+			
+			// Rounding cutoff on wall side
+			translate([0, 0, 0]) {
+				cube([screw_mount_width, rounding_cutoff, screw_mount_height]);
+			}
+
+			// Rounding cutoff on bottom for attachment
+			translate([0, 0, 0]) {
+				cube([screw_mount_width, block_depth, rounding_cutoff]);
+			}
+			
+			
+			// Screw hole in block
+			translate([screw_mount_width/2, rounding_cutoff, screw_mount_height/2+rounding_cutoff/2]) {
+				rotate([270, 0, 0]) {
+					screw_hole(screw_hole_depth-wall_thickness);
+				}
+			}			
+		}
+	}
 }
 
-translate([-20,0,0]) {
-	screw_mount_block();
+function get_mount_screw_hole_pos_and_rot(wall_thickness=3) = 
+	[
+		[screw_mount_width/2, wall_thickness, screw_mount_height/2-1],
+		[90,90,0]
+	];
+
+
+module screw_hole(depth) {
+	linear_extrude(height=depth) {
+		circle(r=screw_hole_radius, $fn=20);
+	}
 }
+
 
 
 // 8 wide
@@ -164,7 +291,7 @@ module back_panel_cover(x, y, z, is_true_panel=true) {
 }
 
 
-module outer_case_without_left_and_back_side(x, y, z) {
+module outer_case_without_floor_and_back_side(x, y, z) {
 	translate([x, y, z]) {
 		difference() {
 			rounded_cube([100, 100, 100], 2);
