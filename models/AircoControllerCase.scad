@@ -38,6 +38,10 @@ screw_mount_height = 10;
 // 0 is good for checking if hole is positioned right and avoiding weird print issues at angles.
 mount_block_back_padding = 0;
 
+// Back cover
+back_cover_width = 80;
+back_cover_height = 50; // without clips but including cover spacing
+
 
 
 
@@ -58,7 +62,7 @@ if (IS_PRINT_VIEW) {
 
 	// Case removable back cover
 	translate([320, 120, 0]) {
-		rotate([0, 0, 90]) {
+		rotate([180, 0, 90]) {
 			back_panel_cover();
 		}
 	}
@@ -176,34 +180,31 @@ module floor() {
 
 
 
-
-
-
-
 // 8 wide
 // with_difference_hole: 
 // true: simulates a screw (used to difference in case)
 // false: actual hole as visible
 module backplate_screw_hole_holder(x, y, z, with_difference_hole=true) {
+	clip_width = 8;
 	translate([x,y+5,z]) {
-		linear_extrude(height=1.5) { 
+		linear_extrude(height=wall_thickness/2) { 
 			difference() {
 				union() {
-					square([8, 5.5]); // Attahment clip square part
-					translate([4, 0, 0]) // Attachment clip round part
-						circle(r=4, $fn=100);
+					square([clip_width, 5.5]); // Attahment clip square part
+					translate([clip_width/2, 0, 0]) // Attachment clip round part
+						circle(r=clip_width/2, $fn=100);
 
 				}
 				if (with_difference_hole) {
-					translate([4, 0, 0])
+					translate([clip_width/2, 0, 0])
 						circle(r=screw_hole_radius, $fn=50); // Screw hole
 				}
 			}
 			
 		}
 		if (!with_difference_hole) {
-			translate([4, 0, 0]) {
-				linear_extrude(height=3) {
+			translate([clip_width/2, 0, 0]) {
+				linear_extrude(height=wall_thickness) {
 					circle(r=screw_hole_radius, $fn=50); // Screw hole
 				}
 			}
@@ -214,31 +215,47 @@ module backplate_screw_hole_holder(x, y, z, with_difference_hole=true) {
 
 // is_true_panel: true: actual panel, false: difference hole
 module back_panel_cover(is_true_panel=true) {
-	difference() {
-		// Back cover panel
-		union() {
-			rounded_square_wall([0, 0, 0], [80, 50,1.5], 1.5); // bot layer
-			rounded_square_wall([wall_thickness, wall_thickness, 1.5], [74, 44,1.5], 1.5); // top layer
-			backplate_screw_hole_holder(10, -10, 0, is_true_panel);
-			backplate_screw_hole_holder(62, -10, 0, is_true_panel);
-			translate([80, 60, 0]) {
-				rotate([0, 0, 180]) {
-					backplate_screw_hole_holder(10, 0, 0, is_true_panel);
-					backplate_screw_hole_holder(62, 0, 0, is_true_panel);
+	cover_slot_spacing = 3;
+	corner_radius = 1.5;
+	layer_height = wall_thickness/2;
+	
+	translate([cover_slot_spacing+corner_radius/2,0,0]) { // dontk now why, dont care.
+		difference() {
+			// Back cover panel
+			union() {
+				rounded_square_wall(
+					[0, 0, 0], 
+					[back_cover_width, back_cover_height, layer_height], 
+					corner_radius); // bot layer (bigger)
+
+				// Hide on true cover, but use for difference hole
+				if (!is_true_panel) {
+					rounded_square_wall(
+						[cover_slot_spacing, cover_slot_spacing, layer_height],
+						[back_cover_width-cover_slot_spacing*2, back_cover_height-cover_slot_spacing*2,layer_height], 
+						corner_radius); // top layer
+				}
+				backplate_screw_hole_holder(10, -10, 0, is_true_panel);
+				backplate_screw_hole_holder(62, -10, 0, is_true_panel);
+				translate([80, 60, 0]) {
+					rotate([0, 0, 180]) {
+						backplate_screw_hole_holder(10, 0, 0, is_true_panel);
+						backplate_screw_hole_holder(62, 0, 0, is_true_panel);
+					}
 				}
 			}
-		}
-		// Air vents
-		if (is_true_panel) {
-			union() {
-				translate([15,11.5,0]) {
-					air_vent();
-				}
-				translate([15,22.5,0]) {
-					air_vent();
-				}
-				translate([15,33.5,0]) {
-					air_vent();
+			// Air vents
+			if (is_true_panel) {
+				union() {
+					translate([15,11.5,0]) {
+						air_vent();
+					}
+					translate([15,22.5,0]) {
+						air_vent();
+					}
+					translate([15,33.5,0]) {
+						air_vent();
+					}
 				}
 			}
 		}
@@ -331,21 +348,25 @@ module outer_case_back_side() {
 		translate([0,0,0])
 			cube([wall_thickness, 100, 100]);
 
+		
 		// Back cover slot
-		// id center check this/...... TODO
-		translate([65,wall_thickness+100-wall_thickness*2-80-7,0]) {
+		translate([65,(100-wall_thickness*2-back_cover_width)/2,0]) {
 			rotate([0, 0, 90]) {
 				back_panel_cover(false);
 			}
 		}
 
 		// USB-C slot
-		translate([wall_thickness+94-board_rest_floor_diff + 4.1, 3+94/2-30/2 ,0]) {
+		translate([
+			100-wall_thickness-board_rest_floor_diff + usbc_slot_height, 
+			100/2-wall_thickness-usbc_slot_width,
+			0]) {
 			rotate([0, 0, 90]) {
 				usbc_slot_with_holder();
 			}
 		}
 	}
+
 }
 
 
@@ -440,7 +461,7 @@ module air_vent() {
 
 // 9.88mm x 4.1mm USB-C port hole - sticks 1.5mm out of board
 module usbc_slot() {
-    linear_extrude(height=3) {
+    linear_extrude(height=wall_thickness) {
         hull() {
             translate([1.5, 1.5]) circle(r=1.5, $fn=32);
             translate([8.38, 1.5]) circle(r=1.5, $fn=32);
@@ -451,7 +472,8 @@ module usbc_slot() {
 }
 
 module usbc_slot_with_holder() {
-    inside_layer_offset = 1.5;
+	// amount the USBC port sticks out of the board
+    usbc_port_overhang = 1.5;
 
 	usbc_slot_inner_padding = 0.5;
 
@@ -460,13 +482,13 @@ module usbc_slot_with_holder() {
     board_rest_height = 2;
 
     // Board Rest
-    translate([0, board_rest_height + usbc_slot_height/2, inside_layer_offset]) {
-        cube([board_rest_width, usbc_slot_height, inside_layer_offset]);
+    translate([0, board_rest_height + usbc_slot_height/2, usbc_port_overhang]) {
+        cube([board_rest_width, usbc_slot_height, usbc_port_overhang]);
     }
 
 	// USBC slot inner padding
-	translate([(board_rest_width - usbc_slot_width)/2 - usbc_slot_inner_padding/2, 0 - usbc_slot_inner_padding/2, inside_layer_offset]) {
-		cube([usbc_slot_width + usbc_slot_inner_padding, usbc_slot_height + usbc_slot_inner_padding, inside_layer_offset]);
+	translate([(board_rest_width - usbc_slot_width)/2 - usbc_slot_inner_padding/2, 0 - usbc_slot_inner_padding/2, usbc_port_overhang]) {
+		cube([usbc_slot_width + usbc_slot_inner_padding, usbc_slot_height + usbc_slot_inner_padding, usbc_port_overhang]);
 	}
 
     // USB-C port hole
@@ -475,13 +497,13 @@ module usbc_slot_with_holder() {
     }
 
 	// Button padding right
-	translate([board_rest_width/2+usbc_slot_width/2+1.7, 1, inside_layer_offset]) {
-		cube([4, 4, inside_layer_offset]);
+	translate([board_rest_width/2+usbc_slot_width/2+1.7, 1, usbc_port_overhang]) {
+		cube([4, 4, usbc_port_overhang]);
 	}
 
 	// Button padding left
-	translate([board_rest_width/2-usbc_slot_width/2-1.7-4, 1, inside_layer_offset]) {
-		cube([4, 4, inside_layer_offset]);
+	translate([board_rest_width/2-usbc_slot_width/2-1.7-4, 1, usbc_port_overhang]) {
+		cube([4, 4, usbc_port_overhang]);
 	}
 }
 
