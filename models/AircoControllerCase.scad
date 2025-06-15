@@ -7,7 +7,7 @@
 IS_ASSEMBLED_VIEW = false;
 
 // Disassembles back cover if in assembly view and true
-DISASSEMBLE_BACK_COVER = false;
+DISASSEMBLE_BACK_COVER = true;
 
 // beginning of board rest levels relative to case floor
 board_rest_floor_diff = 20;
@@ -400,7 +400,7 @@ module outer_case_without_floor_and_back_side() {
 		
 		// IR hole
 		//y -2.5+50
-		translate([wall_thickness,50,80]) {
+		translate([wall_thickness,50,70]) {
 			rotate([0,270,0]) {
 				ir_hole();
 			}
@@ -411,9 +411,15 @@ module outer_case_without_floor_and_back_side() {
 			mode_switch_hole();
 		}
 
-	}
+		// back panel mount screw hole
+		
+		translate([wall_thickness,50,91.5]) {
+			rotate([0,270,0]) {
+				screw_head_hole();
+			}
+		}
 
-	
+	}	
 }
 
 
@@ -456,6 +462,31 @@ module outer_case_back_side() {
 			rotate([0, 0, 90]) {
 				usbc_slot_with_holder();
 			}
+		}
+
+		
+		// Mount screw hole bottom 1
+		translate([91.5,24,wall_thickness]) {
+			rotate([0,180,0]) {
+				screw_head_hole();
+			}
+		}
+
+		// Mount screw hole bottom 2
+		translate([91.5,76,wall_thickness]) {
+			rotate([0,180,0]) {
+				screw_head_hole();
+			}
+		}
+		
+		
+	}
+
+
+	// Top mount block
+	translate([wall_thickness, 50+screw_mount_width/2, wall_thickness]) {
+		rotate([0, 0,270]) {
+			screw_mount_block();
 		}
 	}
 
