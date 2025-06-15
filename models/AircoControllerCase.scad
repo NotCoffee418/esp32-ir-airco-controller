@@ -238,7 +238,7 @@ module floor() {
 // false: actual hole as visible
 module backplate_screw_hole_holder(x, y, z, with_difference_hole=true) {
 	case_clip_width = 8;
-	plate_clip_width = 7.8;
+	plate_clip_width = 7.6;
 	clip_width = with_difference_hole ? plate_clip_width : case_clip_width;
 	x_offset = !with_difference_hole ? 0 : (case_clip_width - plate_clip_width) / 2;
 
