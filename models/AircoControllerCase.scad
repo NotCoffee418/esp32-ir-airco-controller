@@ -1,12 +1,6 @@
 //todo: 
-// - cover screws instead of sketchy glue? clips to receive screws?
-// - usb holder clips
 // - space on inverse backplate (so it's not ultra tight)
-// - ir hole
 // - ir inner cover
-// - mode switch hole
-// - temperature sensor hole
-// - against my better judgement, LCD for temp/status? https://www.gotron.be/0-96-oled-display-met-i2c-voor-arduino.html 
 
 
 // variable to toggle between printable rotations and visual representation for braining
@@ -379,6 +373,11 @@ module outer_case_without_floor_and_back_side() {
 			rotate([0,270,0]) {
 				ir_hole();
 			}
+		}
+
+		// Mode switch hole
+		translate([0,50,20]) {
+			mode_switch_hole();
 		}
 
 	}
@@ -779,7 +778,16 @@ module ir_hole() {
 	}
 }
 
-
+// Sticks out of the case
+module mode_switch_hole() {
+	width = 20;
+	height = 10;
+	translate([0,-width/2,-height/2]) {
+		rotate([90,0,90]) {
+			cube([width,height,wall_thickness]);
+		}
+	}
+}
 
 module rounded_cube(size, radius) {
     translate([radius, radius, radius])  // shift to correct position
