@@ -34,3 +34,19 @@ void serveFile(WebServer& server, const char* path, const char* contentType) {
     }
     file.close();
 }
+
+bool requirePost(WebServer& server) {
+    if (server.method() != HTTP_POST) {
+        server.send(405, "text/plain", "Method not allowed");
+        return false;
+    }
+    return true;
+}
+
+bool requireGet(WebServer& server) {
+    if (server.method() != HTTP_GET) {
+        server.send(405, "text/plain", "Method not allowed");
+        return false;
+    }
+    return true;
+}

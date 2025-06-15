@@ -1,7 +1,7 @@
-//todo: 
-// - space on inverse backplate (so it's not ultra tight)
-// - ir inner cover
-
+// FOR FUTURE REFERENCE:
+// Don't use OpenSCAD. Software keeps crashing, HQ previews which you need to see holes, are very slow once the model gets bigger.
+// Syntax is nice, but everything still quickly turns into a mess.
+// CadQuery seems to be the best alternative.
 
 // variable to toggle between printable rotations and visual representation for braining
 IS_ASSEMBLED_VIEW = false;
