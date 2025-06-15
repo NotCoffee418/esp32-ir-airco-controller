@@ -10,7 +10,7 @@
 
 
 // variable to toggle between printable rotations and visual representation for braining
-IS_ASSEMBLED_VIEW = true;
+IS_ASSEMBLED_VIEW = false;
 
 // beginning of board rest levels relative to case floor
 board_rest_floor_diff = 20;
@@ -58,85 +58,85 @@ device_holder_single_slot_depth = 12;
 
 
 // Case Shell without right side
-// if (!IS_ASSEMBLED_VIEW) {
-// 	// Outer case without floor and back
-// 	outer_case_without_floor_and_back_side();
+if (!IS_ASSEMBLED_VIEW) {
+	// Outer case without floor and back
+	outer_case_without_floor_and_back_side();
 	
-// 	// Floor
-// 	translate([120, 50, 0]) {
-// 		floor();
-// 	}
+	// Floor
+	translate([120, 50, 0]) {
+		floor();
+	}
 
-// 	// case back side
-// 	translate([230,0,0]) {
-// 		outer_case_back_side(); // mind the rounded side!
-// 	}
+	// case back side
+	translate([230,0,0]) {
+		outer_case_back_side(); // mind the rounded side!
+	}
 
-// 	// Case removable back cover
-// 	translate([320, 120, 0]) {
-// 		rotate([180, 0, 90]) {
-// 			back_panel_cover();
-// 		}
-// 	}
+	// Case removable back cover
+	translate([320, 120, 0]) {
+		rotate([180, 0, 90]) {
+			back_panel_cover();
+		}
+	}
 
-// 	// Device holder unit right
-// 	translate([110, 0-30, device_holder_single_slot_depth]) {
-// 		rotate([270, 0, 0]) {
-// 			device_holder_unit(false);
-// 		}
-// 	}
+	// Device holder unit right
+	translate([110, 0-30, device_holder_single_slot_depth]) {
+		rotate([270, 0, 0]) {
+			device_holder_unit(false);
+		}
+	}
 
-// 	// Device holder slider bottom
-// 	translate([140, 0, 10]) {
-// 		rotate([180, 0, 0]) {
-// 			device_holder_slider_bottom();
-// 		}
-// 	}
+	// Device holder slider bottom
+	translate([140, 0, 10]) {
+		rotate([180, 0, 0]) {
+			device_holder_slider_bottom();
+		}
+	}
 
-// 	// Device holder unit left
-// 	translate([180, 20-30, 0]) {
-// 		rotate([90, 0, 0]) {
-// 			device_holder_unit(true);
-// 		}
-// 	}
+	// Device holder unit left
+	translate([180, 20-30, 0]) {
+		rotate([90, 0, 0]) {
+			device_holder_unit(true);
+		}
+	}
 
-// } else { // Assembled view
-// 	//Outer case without floor and back
-// 	translate([100, 0, 100]) {
-// 		rotate([0, 90, 90]) { 
-// 			outer_case_without_floor_and_back_side();
-// 		}
-// 	}
+} else { // Assembled view
+	//Outer case without floor and back
+	translate([100, 0, 100]) {
+		rotate([0, 90, 90]) { 
+			outer_case_without_floor_and_back_side();
+		}
+	}
 
-// 	// Floor
-// 	translate([wall_thickness , wall_thickness, 0]) {
-// 		floor();
-// 	}
+	// Floor
+	translate([wall_thickness , wall_thickness, 0]) {
+		floor();
+	}
 
-// 	// case back side
-// 	translate([0,100,100]) {
-// 		rotate([90, 90, 0]) {
-// 			outer_case_back_side(); // mind the rounded side!
-// 		}
-// 	}
+	// case back side
+	translate([0,100,100]) {
+		rotate([90, 90, 0]) {
+			outer_case_back_side(); // mind the rounded side!
+		}
+	}
 
-// 	// Case removable back cover
-// 	translate([320, 120, 0]) {
-// 		rotate([0, 0, 90]) {
-// 			back_panel_cover();
-// 		}
-// 	}
+	// Case removable back cover
+	translate([320, 120, 0]) {
+		rotate([0, 0, 90]) {
+			back_panel_cover();
+		}
+	}
 
-// 	// Assembled device holder and spoof board
-// 	translate([34.92,57.1,0]) {
-// 		rotate([0,0,270]) {
-// 			assembled_device_holder(true);
-// 		}		
-// 	}
-// }
+	// Assembled device holder and spoof board
+	translate([34.92,57.1,0]) {
+		rotate([0,0,270]) {
+			assembled_device_holder(true);
+		}		
+	}
+}
 
 
-test_print_pieces();
+//test_print_pieces();
 
 
 module floor() {
@@ -371,7 +371,19 @@ module outer_case_without_floor_and_back_side() {
 		translate([80,0,50]) {
 			temperature_sensor_hole();
 		}
+
+		
+		// IR hole
+		//y -2.5+50
+		translate([wall_thickness,50,80]) {
+			rotate([0,270,0]) {
+				ir_hole();
+			}
+		}
+
 	}
+
+	
 }
 
 
@@ -751,7 +763,7 @@ module ir_hole() {
 	// 1.2 padding for inner padding
 	large_hole_depth = 1.5;
 
-	translate([0,wall_thickness-large_hole_depth,large_hole_depth]) {
+	translate([0,0,large_hole_depth]) {
 		rotate([180,0,0]) {
 			linear_extrude(height=large_hole_depth) {
 				circle(r=inside_layer_radius, $fn=50);
