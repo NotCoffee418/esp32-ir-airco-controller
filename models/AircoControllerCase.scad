@@ -359,13 +359,13 @@ module outer_case_without_floor_and_back_side() {
 				screw_head_hole();
 			}
 		}
-		
+
+
+		// Temperature sensor hole (can place wherever it seems.)
+		translate([80,0,50]) {
+			temperature_sensor_hole();
+		}
 	}
-
-	
-
-	
-	
 }
 
 
@@ -717,6 +717,31 @@ module screw_mount_block(is_head_in_wall=true) {
 	}
 }
 
+module temperature_sensor_hole() {
+	// inside the case
+	inside_layer_radius = 23 / 2; // 1.7 tolerance
+
+	// outside the case (small hole)
+	outside_layer_radius = 12.8 / 2; // 0.5 diam tolerance
+
+	// Extra sturdy but close to edge
+	small_hole_depth = 3;
+
+	translate([0,small_hole_depth,0]) {
+		rotate([270,0,0]) {
+			linear_extrude(height=wall_thickness-small_hole_depth) {
+				circle(r=inside_layer_radius, $fn=50);
+			}
+
+
+			translate([0,0,-small_hole_depth]) {
+				linear_extrude(height=small_hole_depth) {
+					circle(r=outside_layer_radius, $fn=50);
+				}
+			}
+		}
+	}
+}
 
 module rounded_cube(size, radius) {
     translate([radius, radius, radius])  // shift to correct position
