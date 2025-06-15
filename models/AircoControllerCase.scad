@@ -4,7 +4,7 @@
 
 
 // variable to toggle between printable rotations and visual representation for braining
-IS_ASSEMBLED_VIEW = true;
+IS_ASSEMBLED_VIEW = false;
 
 // Disassembles back cover if in assembly view and true
 DISASSEMBLE_BACK_COVER = false;
@@ -66,8 +66,12 @@ device_holder_single_slot_depth = 12;
 // Case Shell without right side
 if (!IS_ASSEMBLED_VIEW) {
 	// Outer case without floor and back
-	outer_case_without_floor_and_back_side();
-	
+	translate([0,100,0]) {
+	rotate([180,270,0]) {
+			outer_case_without_floor_and_back_side();
+		}
+	}
+
 	// Floor
 	translate([120, 50, 0]) {
 		floor();
