@@ -23,7 +23,16 @@ usbc_slot_height = 4.1;
 screw_hole_depth = 7;
 screw_head_depth = 1.8;
 screw_head_radius = 4.5 / 2; // with 0.4 spacing
-screw_hole_radius = 2.05 / 2; // 1.8 breaks the plate
+
+
+
+// 2.0: resin breaks at regular hole
+// 2.05: resin breaks at backplate clip
+// 2.1: resin tight fit
+// 2.2: resin good
+// presumable PLA holes shrink even further, but less breaky.
+// Actual screw max diameter seems to be 2.10, and if holes and we can probably handle 0.2 too small in PLA(?)
+screw_hole_radius = 2.1 / 2; // resin bre
 
 
 // Mount block sizes
@@ -749,7 +758,7 @@ module temperature_sensor_hole() {
 	inside_layer_radius = 23 / 2; // 1.7 tolerance
 
 	// outside the case (small hole)
-	outside_layer_radius = 12.8 / 2; // 0.5 diam tolerance
+	outside_layer_radius = 13.5 / 2; // 0.5 diam tolerance
 
 	// Extra sturdy but close to edge
 	small_hole_depth = 3;
@@ -772,10 +781,10 @@ module temperature_sensor_hole() {
 
 module ir_hole() {
 	// inside the case
-	inside_layer_radius = 4.2 / 2; // 1.7 tolerance
+	inside_layer_radius = 5 / 2; // 1.7 tolerance
 
 	// outside the case (small hole)
-	outside_layer_radius = 3.2 / 2; // 0.5 diam tolerance
+	outside_layer_radius = 3.9 / 2; // 0.5 diam tolerance
 
 	// 1.2 padding for inner padding
 	large_hole_depth = 1.5;
@@ -798,8 +807,8 @@ module ir_hole() {
 
 // Sticks out of the case
 module mode_switch_hole() {
-	width = 20;
-	height = 10;
+	width = 20.3;
+	height = 8.5;
 	translate([0,-width/2,-height/2]) {
 		rotate([90,0,90]) {
 			cube([width,height,wall_thickness]);
