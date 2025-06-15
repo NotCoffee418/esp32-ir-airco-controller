@@ -25,8 +25,8 @@ usbc_slot_height = 4.1;
 // Screw hole size (for 6.5mm x 2.2mm with head 1.5)
 screw_hole_depth = 7;
 screw_head_depth = 1.8;
-screw_head_radius = 4.4 / 2; // with 0.4 spacing
-screw_hole_radius = 1.9 / 2;
+screw_head_radius = 4.5 / 2; // with 0.4 spacing
+screw_hole_radius = 2.05 / 2; // 1.8 breaks the plate
 
 
 // Mount block sizes
@@ -58,83 +58,85 @@ device_holder_single_slot_depth = 12;
 
 
 // Case Shell without right side
-if (!IS_ASSEMBLED_VIEW) {
-	// Outer case without floor and back
-	outer_case_without_floor_and_back_side();
+// if (!IS_ASSEMBLED_VIEW) {
+// 	// Outer case without floor and back
+// 	outer_case_without_floor_and_back_side();
 	
-	// Floor
-	translate([120, 50, 0]) {
-		floor();
-	}
+// 	// Floor
+// 	translate([120, 50, 0]) {
+// 		floor();
+// 	}
 
-	// case back side
-	translate([230,0,0]) {
-		outer_case_back_side(); // mind the rounded side!
-	}
+// 	// case back side
+// 	translate([230,0,0]) {
+// 		outer_case_back_side(); // mind the rounded side!
+// 	}
 
-	// Case removable back cover
-	translate([320, 120, 0]) {
-		rotate([180, 0, 90]) {
-			back_panel_cover();
-		}
-	}
+// 	// Case removable back cover
+// 	translate([320, 120, 0]) {
+// 		rotate([180, 0, 90]) {
+// 			back_panel_cover();
+// 		}
+// 	}
 
-	// Device holder unit right
-	translate([110, 0-30, device_holder_single_slot_depth]) {
-		rotate([270, 0, 0]) {
-			device_holder_unit(false);
-		}
-	}
+// 	// Device holder unit right
+// 	translate([110, 0-30, device_holder_single_slot_depth]) {
+// 		rotate([270, 0, 0]) {
+// 			device_holder_unit(false);
+// 		}
+// 	}
 
-	// Device holder slider bottom
-	translate([140, 0, 10]) {
-		rotate([180, 0, 0]) {
-			device_holder_slider_bottom();
-		}
-	}
+// 	// Device holder slider bottom
+// 	translate([140, 0, 10]) {
+// 		rotate([180, 0, 0]) {
+// 			device_holder_slider_bottom();
+// 		}
+// 	}
 
-	// Device holder unit left
-	translate([180, 20-30, 0]) {
-		rotate([90, 0, 0]) {
-			device_holder_unit(true);
-		}
-	}
+// 	// Device holder unit left
+// 	translate([180, 20-30, 0]) {
+// 		rotate([90, 0, 0]) {
+// 			device_holder_unit(true);
+// 		}
+// 	}
 
-} else { // Assembled view
-	//Outer case without floor and back
-	translate([100, 0, 100]) {
-		rotate([0, 90, 90]) { 
-			outer_case_without_floor_and_back_side();
-		}
-	}
+// } else { // Assembled view
+// 	//Outer case without floor and back
+// 	translate([100, 0, 100]) {
+// 		rotate([0, 90, 90]) { 
+// 			outer_case_without_floor_and_back_side();
+// 		}
+// 	}
 
-	// Floor
-	translate([wall_thickness , wall_thickness, 0]) {
-		floor();
-	}
+// 	// Floor
+// 	translate([wall_thickness , wall_thickness, 0]) {
+// 		floor();
+// 	}
 
-	// case back side
-	translate([0,100,100]) {
-		rotate([90, 90, 0]) {
-			outer_case_back_side(); // mind the rounded side!
-		}
-	}
+// 	// case back side
+// 	translate([0,100,100]) {
+// 		rotate([90, 90, 0]) {
+// 			outer_case_back_side(); // mind the rounded side!
+// 		}
+// 	}
 
-	// Case removable back cover
-	translate([320, 120, 0]) {
-		rotate([0, 0, 90]) {
-			back_panel_cover();
-		}
-	}
+// 	// Case removable back cover
+// 	translate([320, 120, 0]) {
+// 		rotate([0, 0, 90]) {
+// 			back_panel_cover();
+// 		}
+// 	}
 
-	// Assembled device holder and spoof board
-	translate([34.92,57.1,0]) {
-		rotate([0,0,270]) {
-			assembled_device_holder(true);
-		}		
-	}
-}
+// 	// Assembled device holder and spoof board
+// 	translate([34.92,57.1,0]) {
+// 		rotate([0,0,270]) {
+// 			assembled_device_holder(true);
+// 		}		
+// 	}
+// }
 
+
+test_print_pieces();
 
 
 module floor() {
@@ -615,8 +617,8 @@ module usbc_slot_with_holder() {
     board_rest_width = 30; // board width slot
     board_rest_height = 2; // board height slot
 	board_rest_depth = wall_thickness - usbc_port_overhang;
-	button_padding_width = 4;
-	button_padding_height = 5;
+	corner_rest_offset = 4; // distance from edge of rest
+	button_padding_height = usbc_slot_height;
 	
 
 
@@ -634,24 +636,16 @@ module usbc_slot_with_holder() {
 
 
     // USB-C port hole
-    translate([(board_rest_width - usbc_slot_width)/2, 0, 0]) {
+    translate([(board_rest_width - usbc_slot_width)/2, 0.6, 0]) {
         usbc_slot();
     }
 
 	// Button padding right
 	translate([
-		board_rest_width/2+usbc_slot_width/2+1.7, 
-		0, 
+		corner_rest_offset, 
+		0.6, 
 		usbc_port_overhang]) {
-		cube([button_padding_width, button_padding_height, board_rest_depth]);
-	}
-
-	// Button padding left
-	translate([
-		board_rest_width/2-usbc_slot_width/2-1.7-button_padding_width, 
-		0, 
-		usbc_port_overhang]) {
-		cube([button_padding_width, button_padding_height, board_rest_depth]);
+		cube([board_rest_width-corner_rest_offset*2, button_padding_height, board_rest_depth]);
 	}
 }
 
@@ -764,6 +758,23 @@ module rounded_square_wall(pos, size, radius) {
 
 // test print pieces (test_slot_fitting_print.stl)
 module test_print_pieces() {
+
+	module _test_screw_head_hole(hole_diam) {
+		translate([0, 0, wall_thickness-screw_head_depth]) {
+			// Head hole
+			linear_extrude(height=screw_head_depth) {
+				circle(r=screw_head_radius, $fn=100);
+			}
+
+		}
+		// wall hole
+
+		linear_extrude(height=wall_thickness) {
+			circle(r=hole_diam/2, $fn=20);
+		}
+	}
+
+
 	difference() {
 		// Board holder
 		cube([30,40,wall_thickness]);	
@@ -780,10 +791,54 @@ module test_print_pieces() {
 		rotate([180,0,90]) {
 				backplate_screw_hole_holder(5, 20, -wall_thickness, false);
 		}
+
+		
+		// Screw head holes
+
+		translate([23,17,0]) {			
+			translate([-5, 0, 3]) {
+				test_text("2.0");
+			}
+			rotate([0,0,0]) {
+				_test_screw_head_hole(2.0);
+			}
+		}
+
+		translate([23,25,0]) {			
+			translate([-5, 0, 3]) {
+				test_text("2.1");
+			}
+			rotate([0,0,0]) {
+				_test_screw_head_hole(2.1);
+			}
+		}
+
+		translate([23,33,0]) {			
+			translate([-5, 0, 3]) {
+				test_text("2.2");
+			}
+			rotate([0,0,0]) {
+				_test_screw_head_hole(2.2);
+			}
+		}
+
+		
 	}
 
 	// Clip
 	rotate([0,0,90]) {
 		backplate_screw_hole_holder(25, -50, 0, true);
+	}
+
+	
+		
+
+
+}
+
+module test_text(text) {
+	rotate([0,0,90]) {
+		linear_extrude(height=1)
+			text(text, size=2, font="Arial:style=Bold", halign="center");
 	}
 }
