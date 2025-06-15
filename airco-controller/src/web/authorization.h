@@ -3,6 +3,5 @@
 #include <Arduino.h>
 #include <WebServer.h>
 
-bool authorizeHandler(WebServer& server);
+bool authorizeWebHandler(WebServer& server);
 void login(WebServer& server, String inputPin);
-bool hasActiveSessionCookie(WebServer& server);

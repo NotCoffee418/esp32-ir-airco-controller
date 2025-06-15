@@ -78,8 +78,8 @@ void setup() {
 }
 
 void loop() {
-	bool modeSwitchState = isModeSwitchOnAuto();
-	Serial.println("Mode switch state: " + String(modeSwitchState));
+	// bool modeSwitchState = isModeSwitchOnAuto();
+	// Serial.println("Mode switch state: " + String(modeSwitchState));
 
 	if (_inHotspotMode) {
 	// Handle web and hotspot DNS requests

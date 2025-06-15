@@ -13,9 +13,12 @@ static const unsigned long _maxTokenAgeMs = 1800000; // 30 min
 static String _activeSessionToken = "";
 static unsigned long _activeSessionTokenCreatedAt = 0;
 
-bool authorizeHandler(WebServer& server) {
+// Prviate functions
+bool _hasActiveSessionCookie(WebServer& server);
+
+bool authorizeWebHandler(WebServer& server) {
     // Check if user has valid session cookie
-    if (hasActiveSessionCookie(server)) {
+    if (_hasActiveSessionCookie(server)) {
         return true;
     }
 
@@ -29,7 +32,7 @@ bool authorizeHandler(WebServer& server) {
 
 void login(WebServer& server, String inputPin) {
     // If user is already logged in, redirect to configure
-    if (hasActiveSessionCookie(server)) {
+    if (_hasActiveSessionCookie(server)) {
         server.sendHeader("Location", "/configure");
         server.send(302, "text/plain", "Already logged in");
         return;
@@ -58,7 +61,7 @@ void login(WebServer& server, String inputPin) {
     }
 }
 
-bool hasActiveSessionCookie(WebServer& server) {
+bool _hasActiveSessionCookie(WebServer& server) {
     // Check if active session is expired (global)
     if (_activeSessionTokenCreatedAt + _maxTokenAgeMs < millis()) {
         _activeSessionToken = "";

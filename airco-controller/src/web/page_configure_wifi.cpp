@@ -11,7 +11,7 @@ void _saveWifiConfigJSON(String json);
 
 void registerConfigureWifiPageHandlers(WebServer& server) {    
 	server.on("/configure", [&server]() {
-        if (!authorizeHandler(server)) {
+        if (!authorizeWebHandler(server)) {
             return;
         }
         
@@ -19,14 +19,14 @@ void registerConfigureWifiPageHandlers(WebServer& server) {
 	});
 
     server.on("/api/get-wifi-config", [&server]() {
-        if (!authorizeHandler(server)) {
+        if (!authorizeWebHandler(server)) {
             return;
         }
         server.send(200, "application/json", _getWifiConfigJSON());
     });
 
     server.on("/api/set-wifi-config", [&server]() {
-        if (!authorizeHandler(server)) {
+        if (!authorizeWebHandler(server)) {
             return;
         }
         
