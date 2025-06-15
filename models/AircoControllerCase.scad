@@ -231,8 +231,12 @@ module floor() {
 // true: simulates a screw (used to difference in case)
 // false: actual hole as visible
 module backplate_screw_hole_holder(x, y, z, with_difference_hole=true) {
-	clip_width = 8;
-	translate([x,y+5,z]) {
+	case_clip_width = 8;
+	plate_clip_width = 7.8;
+	clip_width = with_difference_hole ? plate_clip_width : case_clip_width;
+	x_offset = !with_difference_hole ? 0 : (case_clip_width - plate_clip_width) / 2;
+
+	translate([x+x_offset,y+5,z]) {
 		linear_extrude(height=wall_thickness/2) { 
 			difference() {
 				union() {
@@ -789,7 +793,7 @@ module test_print_pieces() {
 
 		// Clip slot
 		rotate([180,0,90]) {
-				backplate_screw_hole_holder(5, 20, -wall_thickness, false);
+			backplate_screw_hole_holder(5, 20, -wall_thickness, false);
 		}
 
 		
@@ -826,8 +830,14 @@ module test_print_pieces() {
 	}
 
 	// Clip
-	rotate([0,0,90]) {
-		backplate_screw_hole_holder(25, -50, 0, true);
+	translate([40,0,0]) {
+		cube([20,20,wall_thickness]);
+	}
+
+	translate([0,0,0]) {
+		rotate([0,0,180]) {
+			backplate_screw_hole_holder(-55, -30, 0, true);
+		}
 	}
 
 	
