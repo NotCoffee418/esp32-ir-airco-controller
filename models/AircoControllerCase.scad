@@ -4,7 +4,10 @@
 
 
 // variable to toggle between printable rotations and visual representation for braining
-IS_ASSEMBLED_VIEW = false;
+IS_ASSEMBLED_VIEW = true;
+
+// Disassembles back cover if in assembly view and true
+DISASSEMBLE_BACK_COVER = false;
 
 // beginning of board rest levels relative to case floor
 board_rest_floor_diff = 20;
@@ -115,11 +118,20 @@ if (!IS_ASSEMBLED_VIEW) {
 	}
 
 	// Case removable back cover
-	translate([320, 120, 0]) {
-		rotate([0, 0, 90]) {
-			back_panel_cover();
+	if (DISASSEMBLE_BACK_COVER) {
+		translate([200, 0, 0]) {
+			rotate([0, 0, 90]) {
+				back_panel_cover();
+			}
+		}
+	} else {
+		translate([6, 100, 35]) {
+			rotate([90, 0, 0]) {
+				back_panel_cover();
+			}
 		}
 	}
+	
 
 	// Assembled device holder and spoof board
 	translate([34.92,57.1,0]) {
@@ -262,16 +274,22 @@ module back_panel_cover(is_true_panel=true) {
 	cover_slot_spacing = 3;
 	corner_radius = 1.5;
 	layer_height = wall_thickness/2;
+
+	clearance_offset = 0.4;
+
+	size_offset = is_true_panel ? clearance_offset : 0;
 	
 	translate([cover_slot_spacing+corner_radius/2,0,0]) { // dontk now why, dont care.
 		difference() {
 			// Back cover panel
 			union() {
+				// Outer Layer
 				rounded_square_wall(
-					[0, 0, 0], 
-					[back_cover_width, back_cover_height, layer_height], 
+					[size_offset/2, size_offset/2, 0], 
+					[back_cover_width-size_offset, back_cover_height-size_offset, layer_height], 
 					corner_radius); // bot layer (bigger)
 
+				// Inner Layer
 				// Hide on true cover, but use for difference hole
 				if (!is_true_panel) {
 					rounded_square_wall(
