@@ -741,6 +741,34 @@ module temperature_sensor_hole() {
 	}
 }
 
+module ir_hole() {
+	// inside the case
+	inside_layer_radius = 4.2 / 2; // 1.7 tolerance
+
+	// outside the case (small hole)
+	outside_layer_radius = 3.2 / 2; // 0.5 diam tolerance
+
+	// 1.2 padding for inner padding
+	large_hole_depth = 1.5;
+
+	translate([0,wall_thickness-large_hole_depth,large_hole_depth]) {
+		rotate([180,0,0]) {
+			linear_extrude(height=large_hole_depth) {
+				circle(r=inside_layer_radius, $fn=50);
+			}
+
+
+			translate([0,0,-wall_thickness+large_hole_depth]) {
+				linear_extrude(height=wall_thickness-large_hole_depth) {
+					circle(r=outside_layer_radius, $fn=50);
+				}
+			}
+		}
+	}
+}
+
+
+
 module rounded_cube(size, radius) {
     translate([radius, radius, radius])  // shift to correct position
         minkowski() {
@@ -829,14 +857,26 @@ module test_print_pieces() {
 		
 	}
 
-	// Clip
-	translate([40,0,0]) {
-		cube([20,20,wall_thickness]);
-	}
+	// second test board, clip + ir
+	translate([70,-30,0]) {
+		rotate([0,0,90]) {
+			translate([40,0,0]) {
+				difference() {
+					cube([20,20,wall_thickness]);
+					translate([10,8,wall_thickness]) {
+						rotate([0,180,0]) {
+							ir_hole();
+						}
+					}
+				}
+				
+			}
 
-	translate([0,0,0]) {
-		rotate([0,0,180]) {
-			backplate_screw_hole_holder(-55, -30, 0, true);
+			translate([0,0,0]) {
+				rotate([0,0,180]) {
+					backplate_screw_hole_holder(-55, -30, 0, true);
+				}
+			}
 		}
 	}
 
