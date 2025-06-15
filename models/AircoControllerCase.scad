@@ -87,14 +87,14 @@ if (!IS_ASSEMBLED_VIEW) {
 	}
 
 	// Device holder slider bottom
-	translate([130, 0, 10]) {
+	translate([140, 0, 10]) {
 		rotate([180, 0, 0]) {
 			device_holder_slider_bottom();
 		}
 	}
 
 	// Device holder unit left
-	translate([160, 20-30, 0]) {
+	translate([180, 20-30, 0]) {
 		rotate([90, 0, 0]) {
 			device_holder_unit(true);
 		}
@@ -120,8 +120,6 @@ if (!IS_ASSEMBLED_VIEW) {
 		}
 	}
 
-
-	
 	// Case removable back cover
 	translate([320, 120, 0]) {
 		rotate([0, 0, 90]) {
@@ -146,9 +144,38 @@ module floor() {
 	// 0 should be center, 50 should just outside of case
 	// this is reference for correct case holes.
 	center_offset_pos = 25;
-	
+
 	// Floor
-	cube([100-wall_thickness*2,100-wall_thickness*2,wall_thickness]);
+	difference() {
+		// Floor block
+		cube([100-wall_thickness*2,100-wall_thickness*2,wall_thickness]);
+
+		// Screw hole device mount 1
+		// lazy measure
+		translate([
+			47.07,
+			56.6,
+			wall_thickness]
+		) {
+			rotate([180,0,0]) {
+				screw_head_hole();
+			}
+		}
+
+		// Screw hole device mount 2
+		// lazy measure
+		translate([
+			47.07,
+			29.6,
+			wall_thickness]
+		) {
+			rotate([180,0,0]) {
+				screw_head_hole();
+			}
+		}		
+	}
+
+	
 
 	// Mount block - right frontish
 	translate([100-wall_thickness*2, center-center_offset_pos - screw_mount_width, wall_thickness]) {
