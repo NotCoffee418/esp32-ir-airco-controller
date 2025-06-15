@@ -4,4 +4,5 @@
 #include <WebServer.h>
 
 bool authorizeWebHandler(WebServer& server);
+bool authorizeApiHandler(WebServer& server);
 void login(WebServer& server, String inputPin);

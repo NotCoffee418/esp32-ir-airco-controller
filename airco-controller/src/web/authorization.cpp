@@ -3,10 +3,11 @@
 
 #include "network/device_identity.h"
 #include "authorization.h"
+#include "storage/api_keys.h"
 
 // Constants
 static const uint8_t _sessionTokenLength = 16;
-static const unsigned long _maxTokenAgeMs = 1800000; // 30 min
+static const unsigned long _maxSessionAgeMs = 1800000; // 30 min
 
 
 // private variables
@@ -16,6 +17,32 @@ static unsigned long _activeSessionTokenCreatedAt = 0;
 // Prviate functions
 bool _hasActiveSessionCookie(WebServer& server);
 
+
+bool authorizeApiHandler(WebServer& server) {
+    String authHeader = server.header("Authorization");
+    
+    // Check if header exists and has correct prefix
+    if (authHeader.length() == 0 || !authHeader.startsWith("ApiKey ")) {
+        return false;
+    }
+    
+    // Extract token (skip "ApiKey " = 7 characters)
+    String providedToken = authHeader.substring(7);
+    
+    // Get list of valid API keys
+    std::vector<String> validApiKeys = getActiveApiKeys();
+    
+    // Check if provided token matches any valid key
+    for (const String validKey : validApiKeys) {
+        if (providedToken == validKey) {
+            return true;
+        }
+    }
+    
+    return false;
+}
+
+// Check if web user user is logged in
 bool authorizeWebHandler(WebServer& server) {
     // Check if user has valid session cookie
     if (_hasActiveSessionCookie(server)) {
@@ -51,7 +78,7 @@ void login(WebServer& server, String inputPin) {
     if (inputPin == accessPin) {
         _activeSessionToken = generateRandomString(_sessionTokenLength);
         _activeSessionTokenCreatedAt = millis();
-        server.sendHeader("Set-Cookie", "session=" + _activeSessionToken + "; Path=/; Max-Age=" + String(_maxTokenAgeMs / 1000));
+        server.sendHeader("Set-Cookie", "session=" + _activeSessionToken + "; Path=/; Max-Age=" + String(_maxSessionAgeMs / 1000));
         server.sendHeader("Location", "/configure");
         server.send(302, "text/plain", "Login successful");
         return;
@@ -63,7 +90,7 @@ void login(WebServer& server, String inputPin) {
 
 bool _hasActiveSessionCookie(WebServer& server) {
     // Check if active session is expired (global)
-    if (_activeSessionTokenCreatedAt + _maxTokenAgeMs < millis()) {
+    if (_activeSessionTokenCreatedAt + _maxSessionAgeMs < millis()) {
         _activeSessionToken = "";
         _activeSessionTokenCreatedAt = 0;
         return false;
