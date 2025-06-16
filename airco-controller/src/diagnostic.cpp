@@ -1,6 +1,8 @@
 #include <Arduino.h>
 #include <WiFi.h>
 #include "diagnostic.h"
+#include "modules/temperature.h"
+#include "network/device_identity.h"
 
 void printDiagnosticData() {
     DiagnosticData data = getDiagnosticData();
@@ -37,7 +39,9 @@ DiagnosticData getDiagnosticData() {
     data.wifiConnected = WiFi.status() == WL_CONNECTED;
     data.rssi = data.wifiConnected ? WiFi.RSSI() : 0;
     data.deviceTemperature = temperatureRead();
+    data.sensorTemperature = getCachedTempC();
     data.ssid = data.wifiConnected ? WiFi.SSID() : "";
     data.deviceIp = data.wifiConnected ? WiFi.localIP().toString() : WiFi.softAPIP().toString();
+    data.deviceIdentifier = getSetupHotspotName();
     return data;
 }

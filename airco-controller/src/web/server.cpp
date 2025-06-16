@@ -8,7 +8,7 @@
 #include "page_configure_wifi.h"
 #include "page_login.h"
 #include "api_ircontrol.h"
-#include "api_apikey_management.h"
+#include "page_apikey_management.h"
 
 // Private functions
 void _handleCaptivePortalDetection();
@@ -46,7 +46,7 @@ void webServerSetup(bool includeHotspotCapture) {
 	registerConfigureWifiPageHandlers(server);
 	registerLoginPageHandlers(server);
 	registerIrControlApiHandlers(server);
-	registerApiKeyManagementApiHandlers(server);
+	registerApiKeyManagementHandlers(server);
 
 	server.onNotFound([]() { 
 		String uri = server.uri();

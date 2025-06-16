@@ -26,7 +26,9 @@ String _getDiagnosticDataJSON() {
     doc["wifiConnected"] = data.wifiConnected;
     doc["rssi"] = data.rssi;
     doc["deviceTemperature"] = data.deviceTemperature;
+    doc["sensorTemperature"] = data.sensorTemperature;
     doc["ssid"] = data.ssid;
+    doc["deviceIdentifier"] = data.deviceIdentifier;
     
     String json;
     serializeJson(doc, json);

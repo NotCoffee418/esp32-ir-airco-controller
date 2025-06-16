@@ -26,7 +26,8 @@
             <h2 style="margin: 0;">Airco Controller</h2>
             <div>
                 <a href="/status" style="margin-right: 1rem;">Status</a>
-                <a href="/configure">Configuration</a>
+                <a href="/api-keys"  style="margin-right: 1rem;">API Keys</a>
+                <a href="/configure" style="margin-right: 1rem;">Configuration</a>
             </div>
         </div>
     </nav>
@@ -68,7 +69,16 @@
             <div class="card">
                 <h3>Device Temperature</h3>
                 <div class="value" id="tempValue">--</div>
-                <div class="unit">°C</div>
+            </div>
+
+            <div class="card">
+                <h3>Sensor Temperature</h3>
+                <div class="value" id="tempSensorValue">--</div>
+            </div>
+
+            <div class="card">
+                <h3>Device Indentifier</h3>
+                <div class="value" id="deviceIdentifier">--</div>
             </div>
         </div>
     </main>
@@ -139,7 +149,10 @@
                     }
                     
                     var deviceTemp = parseFloat(data.deviceTemperature) || 0;
-                    document.getElementById('tempValue').textContent = deviceTemp.toFixed(1);
+                    var sensorTemp = parseFloat(data.sensorTemperature) || 0;
+                    document.getElementById('tempValue').textContent = deviceTemp.toFixed(1) + ' °C';
+                    document.getElementById('tempSensorValue').textContent = sensorTemp.toFixed(1) + ' °C';
+                    document.getElementById('deviceIdentifier').textContent = data.deviceIdentifier || '--';
                     document.getElementById('lastUpdated').textContent = 'Last updated: ' + new Date().toLocaleTimeString();
                 })
                 .catch(function(error) {

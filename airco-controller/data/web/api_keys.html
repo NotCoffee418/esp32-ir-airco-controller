@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Keys - Airco Controller</title>
+    <link rel="stylesheet" href="/css/water.min.css">
+    <style>
+        .api-key-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.75rem;
+            border: 1px solid var(--border);
+            margin-bottom: 0.5rem;
+        }
+        .api-key-value {
+            font-family: monospace;
+            word-break: break-all;
+            margin-right: 1rem;
+        }
+        .api-key-hidden {
+            font-family: monospace;
+            margin-right: 1rem;
+        }
+        .key-actions {
+            display: flex;
+            gap: 0.5rem;
+            flex-shrink: 0;
+        }
+        .btn-small {
+            padding: 0.25rem 0.5rem;
+            font-size: 0.8rem;
+        }
+        .copy-btn {
+            background-color: #007bff;
+            color: white;
+        }
+        .copy-btn:hover {
+            background-color: #0056b3;
+        }
+        .show-btn {
+            background-color: #6c757d;
+            color: white;
+        }
+        .show-btn:hover {
+            background-color: #545b62;
+        }
+        .delete-btn {
+            background-color: #dc3545;
+            color: white;
+        }
+        .delete-btn:hover {
+            background-color: #c82333;
+        }
+        .no-keys {
+            text-align: center;
+            padding: 2rem;
+            font-style: italic;
+        }
+        .generate-container {
+            margin-top: 2rem;
+            text-align: center;
+        }
+        .modal-footer {
+            display: flex;
+            gap: 0.5rem;
+            justify-content: flex-end;
+            margin-top: 1rem;
+        }
+        .btn-danger {
+            background-color: #dc3545;
+            color: white;
+        }
+        .btn-danger:hover {
+            background-color: #c82333;
+        }
+        .new-key {
+            background-color: #1e4d3a;
+            border: 1px solid #2d5a47;
+            color: #90ee90;
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <nav style="padding: 1rem 0; margin-bottom: 2rem; border-bottom: 1px solid var(--border);">
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+            <h2 style="margin: 0;">Airco Controller</h2>
+            <div>
+                <a href="/status" style="margin-right: 1rem;">Status</a>
+                <a href="/api-keys"  style="margin-right: 1rem;">API Keys</a>
+                <a href="/configure" style="margin-right: 1rem;">Configuration</a>
+            </div>
+        </div>
+    </nav>
+
+    <main style="max-width: 800px; margin: 0 auto; padding: 0 1rem;">
+        <h1>API Keys</h1>
+        
+        <div id="newKeyAlert" class="new-key" style="display: none;">
+            <strong>API key generated successfully!</strong>
+        </div>
+
+        <div id="apiKeysContainer">
+            <div id="loadingMessage">Loading API keys...</div>
+            <div id="noKeysMessage" class="no-keys" style="display: none;">
+                No API keys exist
+            </div>
+            <div id="apiKeysList"></div>
+        </div>
+
+        <div class="generate-container">
+            <button id="generateBtn" class="btn">Generate API Key</button>
+        </div>
+    </main>
+
+    <!-- Generate Confirmation Modal -->
+    <dialog id="generateModal">
+        <h3>Generate API Key</h3>
+        <p>Are you sure you want to generate a new API key?</p>
+        <div class="modal-footer">
+            <button id="cancelGenerate" class="btn">Cancel</button>
+            <button id="confirmGenerate" class="btn">Generate</button>
+        </div>
+    </dialog>
+
+    <!-- Delete Confirmation Modal -->
+    <dialog id="deleteModal">
+        <h3>Delete API Key</h3>
+        <p>Are you sure you want to delete this API key?</p>
+        <div style="font-family: monospace; word-break: break-all; margin: 0.5rem 0;" id="deleteKeyPreview"></div>
+        <div class="modal-footer">
+            <button id="cancelDelete" class="btn">Cancel</button>
+            <button id="confirmDelete" class="btn btn-danger">Delete</button>
+        </div>
+    </dialog>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script>
+        $(document).ready(function() {
+            let currentDeleteKey = '';
+
+            // Load API keys on page load
+            loadApiKeys();
+
+            function loadApiKeys() {
+                $('#loadingMessage').show();
+                $('#noKeysMessage').hide();
+                $('#apiKeysList').empty();
+
+                $.get('/api/api-key/list')
+                    .done(function(response) {
+                        $('#loadingMessage').hide();
+                        
+                        if (response.success) {
+                            if (response.data && response.data.length > 0) {
+                                displayApiKeys(response.data);
+                            } else {
+                                $('#noKeysMessage').show();
+                            }
+                        } else {
+                            alert('Failed to load API keys: ' + response.error);
+                        }
+                    })
+                    .fail(function(xhr, status, error) {
+                        $('#loadingMessage').hide();
+                        console.log('Load API keys failed:', xhr.responseText);
+                        alert('Failed to load API keys: ' + error);
+                    });
+            }
+
+            function displayApiKeys(keys) {
+                const container = $('#apiKeysList');
+                container.empty();
+
+                keys.forEach(function(key) {
+                    const row = $(`
+                        <div class="api-key-row">
+                            <div class="api-key-hidden" data-key="${key}">••••••••••••••••••••••••••••••••</div>
+                            <div class="key-actions">
+                                <button class="btn btn-small show-btn" data-key="${key}">Show</button>
+                                <button class="btn btn-small copy-btn" data-key="${key}">Copy</button>
+                                <button class="btn btn-small delete-btn" data-key="${key}">Delete</button>
+                            </div>
+                        </div>
+                    `);
+                    container.append(row);
+                });
+            }
+
+            // Generate API Key
+            $('#generateBtn').click(function() {
+                $('#generateModal')[0].showModal();
+            });
+
+            $('#confirmGenerate').click(function() {
+                $('#generateModal')[0].close();
+                
+                $.get('/api/api-key/generate')
+                    .done(function(response) {
+                        if (response.success) {
+                            $('#newKeyAlert').show();
+                            loadApiKeys();
+                        } else {
+                            alert('Failed to generate API key: ' + response.error);
+                        }
+                    })
+                    .fail(function(xhr, status, error) {
+                        console.log('Generate API key failed:', xhr.responseText);
+                        alert('Failed to generate API key: ' + error);
+                    });
+            });
+
+            $('#cancelGenerate').click(function() {
+                $('#generateModal')[0].close();
+            });
+
+            // Show/Hide API Key
+            $(document).on('click', '.show-btn', function() {
+                const btn = $(this);
+                const key = btn.data('key');
+                const keyDisplay = btn.closest('.api-key-row').find('.api-key-hidden, .api-key-value');
+                
+                if (btn.text() === 'Show') {
+                    keyDisplay.removeClass('api-key-hidden').addClass('api-key-value').text(key);
+                    btn.text('Hide');
+                } else {
+                    keyDisplay.removeClass('api-key-value').addClass('api-key-hidden').text('••••••••••••••••••••••••••••••••');
+                    btn.text('Show');
+                }
+            });
+
+            // Copy API Key
+            $(document).on('click', '.copy-btn', function() {
+                const btn = $(this);
+                const key = btn.data('key');
+                
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(key).then(function() {
+                        const originalText = btn.text();
+                        btn.text('Copied!');
+                        setTimeout(function() {
+                            btn.text(originalText);
+                        }, 1000);
+                    });
+                } else {
+                    // Fallback for older browsers or HTTP
+                    const textArea = document.createElement('textarea');
+                    textArea.value = key;
+                    document.body.appendChild(textArea);
+                    textArea.select();
+                    document.execCommand('copy');
+                    document.body.removeChild(textArea);
+                    
+                    const originalText = btn.text();
+                    btn.text('Copied!');
+                    setTimeout(function() {
+                        btn.text(originalText);
+                    }, 1000);
+                }
+            });
+
+            // Delete API Key
+            $(document).on('click', '.delete-btn', function() {
+                currentDeleteKey = $(this).data('key');
+                $('#deleteKeyPreview').text(currentDeleteKey);
+                $('#deleteModal')[0].showModal();
+            });
+
+            $('#confirmDelete').click(function() {
+                $('#deleteModal')[0].close();
+                
+                $.post('/api/api-key/remove', { apiKey: currentDeleteKey })
+                    .done(function(response) {
+                        if (response.success) {
+                            loadApiKeys(); // Refresh the list
+                        } else {
+                            alert('Failed to delete API key: ' + response.error);
+                        }
+                    })
+                    .fail(function(xhr, status, error) {
+                        console.log('Delete API key failed:', xhr.responseText);
+                        alert('Failed to delete API key: ' + error);
+                    });
+            });
+
+            $('#cancelDelete').click(function() {
+                $('#deleteModal')[0].close();
+            });
+
+            // Close new key alert
+            $(document).on('click', '#newKeyAlert', function() {
+                $(this).hide();
+            });
+        });
+    </script>
+</body>
+</html>

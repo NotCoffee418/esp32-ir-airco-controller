@@ -1,6 +1,5 @@
-#include "api_apikey_management.h"
+#include "page_apikey_management.h"
 #include "authorization.h"
-#include "api_structs.h"
 #include "storage/api_keys.h"
 #include "web/web_helpers.h"
 
@@ -11,7 +10,15 @@ void _apiHandleList(WebServer& server);
 
 
 // Note that particular API endpoints are managed with the session cookie rather than the API key.
-void registerApiKeyManagementApiHandlers(WebServer& server) {
+void registerApiKeyManagementHandlers(WebServer& server) {
+    server.on("/api-keys", [&server]() {
+        if (!authorizeWebHandler(server)) {
+            return;
+        }
+        
+        serveFile(server, "/web/api_keys.html", "text/html");
+    });
+
     server.on("/api/api-key/generate", [&server]() {
         if (!authorizeWebHandler(server)) {
             return;
@@ -47,28 +54,28 @@ void registerApiKeyManagementApiHandlers(WebServer& server) {
 void _apiHandleGenerate(WebServer& server) {
     GenerateApiKeyResult result = generateApiKey();
     if (result.success) {
-        server.send(200, "text/plain", apiSuccessResp(result.key));
+        apiSuccessResp(server, result.key);
     } else {
-        server.send(500, "text/plain", apiErrorResp(result.error));
+        apiErrorResp(server, result.error);
     }
 }
 
 void _apiHandleRemove(WebServer& server) {
     String key = server.arg("apiKey");
     if (key.isEmpty()) {
-        server.send(400, "text/plain", apiErrorResp("Key is required"));
+        apiErrorResp(server, "Key is required");
         return;
     }
 
     bool success = removeApiKey(key);
     if (success) {
-        server.send(200, "text/plain", apiSuccessResp("Key removed"));
+        apiSuccessResp(server, "Key removed");
     } else {
-        server.send(500, "text/plain", apiErrorResp("Failed to remove key"));
+        apiErrorResp(server, "Failed to remove key");
     }
 }
 
 void _apiHandleList(WebServer& server) {
     std::vector<String> keys = getActiveApiKeys();
-    server.send(200, "text/plain", apiSuccessResp(keys));
+    apiSuccessResp(server, keys);
 }
