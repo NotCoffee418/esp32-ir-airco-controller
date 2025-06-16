@@ -4,6 +4,7 @@
 #include "network/device_identity.h"
 #include "authorization.h"
 #include "storage/api_keys.h"
+#include "web/web_helpers.h"
 
 // Constants
 static const uint8_t _sessionTokenLength = 16;
@@ -16,6 +17,14 @@ static unsigned long _activeSessionTokenCreatedAt = 0;
 
 // Prviate functions
 bool _hasActiveSessionCookie(WebServer& server);
+
+
+// Allows both API and session cookie authentication
+// Responds with API's unauthorized if both fail
+bool authorizeWebOrApiHandler(WebServer& server) {
+    // Web handler check first since api will provide the fail response.
+    return authorizeWebHandler(server, false) || authorizeApiHandler(server);
+}
 
 
 bool authorizeApiHandler(WebServer& server) {
@@ -38,12 +47,13 @@ bool authorizeApiHandler(WebServer& server) {
             return true;
         }
     }
-    
+
+    apiErrorResp(server, "Unauthorized", 401);    
     return false;
 }
 
 // Check if web user user is logged in
-bool authorizeWebHandler(WebServer& server) {
+bool authorizeWebHandler(WebServer& server, bool redirectAndReset = true) {
     // Check if user has valid session cookie
     if (_hasActiveSessionCookie(server)) {
         return true;
@@ -51,9 +61,11 @@ bool authorizeWebHandler(WebServer& server) {
 
     // Does not have valid session cookie, redirect to login
     // Clear cookie if any
-    server.sendHeader("Location", "/login");
-    server.sendHeader("Set-Cookie", "session=; Path=/; Max-Age=0");
-    server.send(302, "text/plain", "Not logged in");
+    if (redirectAndReset) {
+        server.sendHeader("Location", "/login");
+        server.sendHeader("Set-Cookie", "session=; Path=/; Max-Age=0");
+        server.send(302, "text/plain", "Not logged in");
+    }
     return false;
 }
 

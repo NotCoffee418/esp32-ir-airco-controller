@@ -1,4 +1,4 @@
-#include <ir_Fujitsu.h>
+#include "ir_remote.h"
 
 #define IR_SEND_PIN 4
 
@@ -67,11 +67,42 @@ bool turnOffAC() {
 // Fan:
 // - AUTO works
 // - Other speeds untested
-bool turnOnAC() { 
+bool turnOnAC(
+    AcMode mode,
+    FanSpeed fanSpeed,
+    float tempC,
+    AcSwing swing
+) { 
     if (_irRemoteIsSending) {
         return false;
     }
     _irRemoteIsSending = true;
+
+    uint8_t modeValue = static_cast<uint8_t>(mode);
+    uint8_t fanSpeedValue = static_cast<uint8_t>(fanSpeed);
+    uint8_t swingValue = static_cast<uint8_t>(swing);
+
+    // Validate inputs
+    if (modeValue < 1U || modeValue > 4U || fanSpeedValue > 4U || swingValue > 1U) {
+        Serial.println("Invalid AC settings");
+        return false;
+    }
+
+    // min/max temperatures per mode
+    if (mode == AcMode::AC_MODE_COOL) {
+        if (tempC < 18.0f || tempC > 30.0f) {
+            Serial.println("Invalid temperature for COOL mode");
+            return false;
+        }
+    } else if (mode == AcMode::AC_MODE_HEAT) {
+        if (tempC < 16.0f || tempC > 30.0f) {
+            Serial.println("Invalid temperature for HEAT mode");
+            return false;
+        }
+    } else {
+        Serial.println("Invalid mode");
+        return false;
+    }
 
     // Small delay to let ESP32 settle background tasks
     delay(100);
@@ -87,10 +118,29 @@ bool turnOnAC() {
     delay(2000);
 
     // Change settings
-    ac.setSwing(FUJITSU_AC_SWING_VERT);
-    ac.setMode(FUJITSU_AC_MODE_COOL);
-    ac.setFanSpeed(FUJITSU_AC_FAN_AUTO);
-    ac.setTemp(24);
+    ac.setSwing(swingValue);
+    ac.setMode(modeValue);
+    ac.setFanSpeed(fanSpeedValue);
+    ac.setTemp(tempC);
+
+    portDISABLE_INTERRUPTS();
+    ac.send();
+    portENABLE_INTERRUPTS();
+
+    _irRemoteIsSending = false;
+    return true;
+}
+
+bool setPowerful(bool powerful) {
+    if (_irRemoteIsSending) {
+        return false;
+    }
+    _irRemoteIsSending = true;
+
+    ac.setCmd(powerful ? kFujitsuAcCmdPowerful : kFujitsuAcCmdStayOn);
+
+    // Small delay to let ESP32 settle background tasks
+    delay(100);
 
     portDISABLE_INTERRUPTS();
     ac.send();

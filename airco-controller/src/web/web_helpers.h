@@ -28,7 +28,7 @@ void apiSuccessResp(WebServer& server, T data) {
 }
 
 // Add this function:
-inline void apiErrorResp(WebServer& server, String error) {
+inline void apiErrorResp(WebServer& server, String error, int statusCode = 200) {
     JsonDocument doc;
     doc["data"] = nullptr;
     doc["error"] = error;
@@ -36,7 +36,7 @@ inline void apiErrorResp(WebServer& server, String error) {
     
     String output;
     serializeJson(doc, output);
-    server.send(200, "application/json", output);
+    server.send(statusCode, "application/json", output);
 }
 
 // Specialization for std::vector<String>
