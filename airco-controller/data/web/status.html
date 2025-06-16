@@ -80,6 +80,11 @@
                 <h3>Device Indentifier</h3>
                 <div class="value" id="deviceIdentifier">--</div>
             </div>
+
+            <div class="card">
+                <h3>Mode Switch</h3>
+                <div class="value" id="modeSwitchValue">--</div>
+            </div>
         </div>
     </main>
 
@@ -154,6 +159,7 @@
                     document.getElementById('tempSensorValue').textContent = sensorTemp.toFixed(1) + ' °C';
                     document.getElementById('deviceIdentifier').textContent = data.deviceIdentifier || '--';
                     document.getElementById('lastUpdated').textContent = 'Last updated: ' + new Date().toLocaleTimeString();
+                    document.getElementById('modeSwitchValue').textContent = data.isModeSwitchOnAuto ? 'Auto' : 'Manual';
                 })
                 .catch(function(error) {
                     console.error('Fetch error:', error);
@@ -167,7 +173,7 @@
 
         function startRefresh() {
             updateData();
-            refreshInterval = setInterval(updateData, 10000);
+            refreshInterval = setInterval(updateData, 3000);
         }
 
         function stopRefresh() {

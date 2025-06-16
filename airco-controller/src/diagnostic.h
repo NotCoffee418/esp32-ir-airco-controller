@@ -13,6 +13,7 @@ struct DiagnosticData {
     String ssid;
     String deviceIp;
     String deviceIdentifier;
+    bool isModeSwitchOnAuto;
 };
 
 void printDiagnosticData();

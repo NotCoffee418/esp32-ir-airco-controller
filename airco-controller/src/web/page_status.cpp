@@ -29,6 +29,7 @@ String _getDiagnosticDataJSON() {
     doc["sensorTemperature"] = data.sensorTemperature;
     doc["ssid"] = data.ssid;
     doc["deviceIdentifier"] = data.deviceIdentifier;
+    doc["isModeSwitchOnAuto"] = data.isModeSwitchOnAuto;
     
     String json;
     serializeJson(doc, json);

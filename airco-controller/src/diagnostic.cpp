@@ -3,6 +3,7 @@
 #include "diagnostic.h"
 #include "modules/temperature.h"
 #include "network/device_identity.h"
+#include "modules/mode_switch.h"
 
 void printDiagnosticData() {
     DiagnosticData data = getDiagnosticData();
@@ -43,5 +44,6 @@ DiagnosticData getDiagnosticData() {
     data.ssid = data.wifiConnected ? WiFi.SSID() : "";
     data.deviceIp = data.wifiConnected ? WiFi.localIP().toString() : WiFi.softAPIP().toString();
     data.deviceIdentifier = getSetupHotspotName();
+    data.isModeSwitchOnAuto = isModeSwitchOnAuto();
     return data;
 }
