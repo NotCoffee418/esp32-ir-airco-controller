@@ -37,7 +37,7 @@ void serveFile(WebServer& server, const char* path, const char* contentType) {
 
 bool requirePost(WebServer& server) {
     if (server.method() != HTTP_POST) {
-        server.send(405, "text/plain", "Method not allowed");
+        apiErrorResp(server, "Method not allowed", 405);
         return false;
     }
     return true;
@@ -45,7 +45,15 @@ bool requirePost(WebServer& server) {
 
 bool requireGet(WebServer& server) {
     if (server.method() != HTTP_GET) {
-        server.send(405, "text/plain", "Method not allowed");
+        apiErrorResp(server, "Method not allowed", 405);
+        return false;
+    }
+    return true;
+}
+
+bool requireBody(WebServer& server) {
+    if (server.method() != HTTP_POST) {
+        apiErrorResp(server, "Method not allowed", 405);
         return false;
     }
     return true;

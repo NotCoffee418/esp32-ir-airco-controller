@@ -28,5 +28,5 @@ enum class AcSwing : uint8_t {
 
 void setupIrRemote();
 bool turnOffAC();
-bool turnOnAC(AcMode mode, FanSpeed fanSpeed, float tempC, AcSwing swing, bool powerful);
-bool setPowerful(bool isPowerful);
+bool turnOnAC(AcMode mode, FanSpeed fanSpeed, float tempC, AcSwing swing);
+bool togglePowerful();

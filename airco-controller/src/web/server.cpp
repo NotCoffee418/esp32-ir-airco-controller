@@ -9,6 +9,8 @@
 #include "page_login.h"
 #include "api_ircontrol.h"
 #include "page_apikey_management.h"
+#include "page_manual_control.h"
+#include "api_sensors.h"
 
 // Private functions
 void _handleCaptivePortalDetection();
@@ -47,6 +49,8 @@ void webServerSetup(bool includeHotspotCapture) {
 	registerLoginPageHandlers(server);
 	registerIrControlApiHandlers(server);
 	registerApiKeyManagementHandlers(server);
+	registerManualControlHandlers(server);
+	registerSensorsApiHandlers(server);
 
 	server.onNotFound([]() { 
 		String uri = server.uri();

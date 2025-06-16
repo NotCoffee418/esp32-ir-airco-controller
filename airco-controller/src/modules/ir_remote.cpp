@@ -131,13 +131,15 @@ bool turnOnAC(
     return true;
 }
 
-bool setPowerful(bool powerful) {
+// Double beep = on, single beep = off
+// Resets on fresh turn on. stops when at temperature, not sure if it resumes if temp goes off?
+bool togglePowerful() {
     if (_irRemoteIsSending) {
         return false;
     }
     _irRemoteIsSending = true;
 
-    ac.setCmd(powerful ? kFujitsuAcCmdPowerful : kFujitsuAcCmdStayOn);
+    ac.setCmd(kFujitsuAcCmdPowerful);
 
     // Small delay to let ESP32 settle background tasks
     delay(100);

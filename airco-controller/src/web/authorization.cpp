@@ -53,7 +53,7 @@ bool authorizeApiHandler(WebServer& server) {
 }
 
 // Check if web user user is logged in
-bool authorizeWebHandler(WebServer& server, bool redirectAndReset = true) {
+bool authorizeWebHandler(WebServer& server, bool redirectAndReset) {
     // Check if user has valid session cookie
     if (_hasActiveSessionCookie(server)) {
         return true;
