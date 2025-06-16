@@ -61,7 +61,9 @@ Once WiFi is configured, access the dashboard at the device's local IP address (
 
 ## REST API
 
-Complete API documentation available in the repository. Key endpoints:
+**[Complete API Documentation](https://github.com/NotCoffee418/esp32-ir-airco-controller/blob/main/docs/api-documentation.md)** - Full endpoint reference with examples
+
+Key endpoints:
 - `POST /api/ir/off` - Turn off AC
 - `POST /api/ir/on` - Turn on with settings (mode, temp, fan, swing)
 - `POST /api/ir/toggle-powerful` - Toggle powerful mode
