@@ -17,7 +17,7 @@ void registerApiKeyManagementApiHandlers(WebServer& server) {
             return;
         }
 
-        if (!requirePost(server)) {
+        if (!requireGet(server)) {
             return;
         }
 
